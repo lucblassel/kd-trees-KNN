@@ -48,6 +48,15 @@ class Node:
 
         return ret
 
+    def reinitialize(self):
+
+        self.visited = False
+
+        if self.right:
+            self.right.reinitialize()
+        if self.left:
+            self.left.reinitialize()
+
 def createTree(pointList,dimensions,depth=0,parent=None):
     """
     creates Kd-tree, pointsList is the list of points. dimensions is the dimension of the euclidean space in which these points are present (or number od fimensions along which you want to split the data). depth is the starting tree-depth
@@ -128,12 +137,12 @@ def batch_knn(known_points,unknown_points,label_dic,k):
     tree = createTree(pointList=known_points,dimensions=len(known_points[0]))
     predictions = []
     for point in unknown_points:
+        print(point)
         candidates =[]
         nearestNeighbours(point=point,node=tree,candidateList=candidates,k=k)
         candidates_labels_dic = {}
-        for node in candidates[:k]:
+        for node in candidates:
             candidate = tuple(node[1].value)
-            print("candidate :", candidate)
             if candidate in candidates_labels_dic:
                 candidates_labels_dic[label_dic[candidate]] += 1
             else:
@@ -141,6 +150,8 @@ def batch_knn(known_points,unknown_points,label_dic,k):
         print ("candidate label dic :",candidates_labels_dic)
         predicted_label = max(candidates_labels_dic, key=candidates_labels_dic.get) #assuming if equality of count each key has a random chance to be the first of this result
         predictions.append(predicted_label)
+        tree.reinitialize()
+
     return predictions
 
 
@@ -155,16 +166,17 @@ def main():
     cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
     label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
     dims = 2
-    print(datetime.now())
-    tree = createTree(pointList=cloud,dimensions=dims)
-    print(datetime.now())
-    print("tree created")
-    print(tree)
+    # print(datetime.now())
+    # tree = createTree(pointList=cloud,dimensions=dims)
+    # print(datetime.now())
+    # print("tree created")
+    # print(tree)
 
     point = [4,8]
-    candidates = []
-    nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
-    printNeighbours(candidates)
+    unknown = [[1,8],[4,8]]
+    # candidates = []
+    # nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
+    # printNeighbours(candidates)
     predictions = batch_knn(cloud,cloud,label_dic,4)
     print("Predicted classes : ",predictions)
 
