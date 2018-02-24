@@ -124,6 +124,26 @@ def printNeighbours(candidates):
 def genCloud(num,dims, min, max):
     return [[randint(min,max) for i in range(dims)] for j in range(num)]
 
+def batch_knn(known_points,unknown_points,label_dic,k):
+    tree = createTree(pointList=known_points,dimensions=len(known_points[0]))
+    predictions = []
+    for point in unknown_points:
+        candidates =[]
+        nearestNeighbours(point=point,node=tree,candidateList=candidates,k=k)
+        candidates_labels_dic = {}
+        for node in candidates[:k]:
+            candidate = tuple(node[1].value)
+            print("candidate :", candidate)
+            if candidate in candidates_labels_dic:
+                candidates_labels_dic[label_dic[candidate]] += 1
+            else:
+                candidates_labels_dic[label_dic[candidate]] = 1
+        print ("candidate label dic :",candidates_labels_dic)
+        predicted_label = max(candidates_labels_dic, key=candidates_labels_dic.get) #assuming if equality of count each key has a random chance to be the first of this result
+        predictions.append(predicted_label)
+    return predictions
+
+
 def main():
     num = 100
     dims = 3
@@ -133,6 +153,7 @@ def main():
 
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ (FOR TESTING)
     cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
+    label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
     dims = 2
     print(datetime.now())
     tree = createTree(pointList=cloud,dimensions=dims)
@@ -144,6 +165,8 @@ def main():
     candidates = []
     nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
     printNeighbours(candidates)
+    predictions = batch_knn(cloud,cloud,label_dic,4)
+    print("Predicted classes : ",predictions)
 
 if __name__=="__main__":
     main()
