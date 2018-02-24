@@ -131,10 +131,11 @@ def batch_knn(known_points,unknown_points,label_dic,k):
         candidates =[]
         nearestNeighbours(point=point,node=tree,candidateList=candidates,k=k)
         candidates_labels_dic = {}
-        for node in candidates[:k]:
+        print("point :", point," candidates :",candidates)
+        for node in candidates:
             candidate = tuple(node[1].value)
             print("candidate :", candidate)
-            if candidate in candidates_labels_dic:
+            if label_dic[candidate] in candidates_labels_dic:
                 candidates_labels_dic[label_dic[candidate]] += 1
             else:
                 candidates_labels_dic[label_dic[candidate]] = 1
