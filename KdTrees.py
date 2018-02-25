@@ -4,8 +4,11 @@ authors: Luc Blassel, Romain Gautron
 """
 
 from projet_sort import *
+from helpers import *
 from random import randint
 from datetime import datetime
+from sklearn.datasets import load_iris
+
 import math
 import numpy as np
 
@@ -48,14 +51,16 @@ class Node:
 
         return ret
 
-    def reinitialize(self):
-
+    def reset(self):
+        """
+        sets all visited values to false
+        """
         self.visited = False
 
         if self.right:
-            self.right.reinitialize()
+            self.right.reset()
         if self.left:
-            self.left.reinitialize()
+            self.left.reset()
 
 def createTree(pointList,dimensions,depth=0,parent=None):
     """
@@ -102,8 +107,6 @@ def nearestNeighbours(point,node,candidateList,distMin=math.inf,k=1):
     if dist < distMin:
         distMin = dist
 
-    #TODO pruning
-
     candidateList.append([dist,node])
     candidateList.sort(key=lambda point: point[0])
 
@@ -126,13 +129,6 @@ def nearestNeighbours(point,node,candidateList,distMin=math.inf,k=1):
 
     node.visited = True
 
-def printNeighbours(candidates):
-    for node in candidates:
-        print("node: "+str(node[1].value)+" , distance: "+str(node[0]))
-
-def genCloud(num,dims, min, max):
-    return [[randint(min,max) for i in range(dims)] for j in range(num)]
-
 def batch_knn(known_points,unknown_points,label_dic,k):
     tree = createTree(pointList=known_points,dimensions=len(known_points[0]))
     predictions = []
@@ -150,7 +146,7 @@ def batch_knn(known_points,unknown_points,label_dic,k):
         print ("candidate label dic :",candidates_labels_dic)
         predicted_label = max(candidates_labels_dic, key=candidates_labels_dic.get) #assuming if equality of count each key has a random chance to be the first of this result
         predictions.append(predicted_label)
-        tree.reinitialize()
+        tree.reset()
 
     return predictions
 
@@ -161,6 +157,21 @@ def main():
     min = -1000
     max = 1000
     # cloud = genCloud(num,dims,min,max)
+
+    #testing with iris dataset
+    data = load_iris()
+    randIndex = np.random.choice(len(data['data']),10)
+
+    pointsTrain = np.delete(data['data'],randIndex,0).tolist()
+    targetTrain = np.delete(data['target'],randIndex,0).tolist()
+    pointsTest = data['data'][randIndex].tolist()
+    targetTest = data['target'][randIndex].tolist()
+
+    print(pointsTrain,targetTrain)
+    print(data['data'][randIndex])
+
+    pointsDictTrain = toDict(pointsTrain,targetTrain)
+    pointsDictTest = toDict(pointsTest,targetTest)
 
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ (FOR TESTING)
     cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
@@ -177,8 +188,9 @@ def main():
     # candidates = []
     # nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
     # printNeighbours(candidates)
-    predictions = batch_knn(cloud,cloud,label_dic,4)
-    print("Predicted classes : ",predictions)
+    predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
+
+    printPreds(predictions,pointsDictTest)
 
 if __name__=="__main__":
     main()
