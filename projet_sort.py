@@ -1,4 +1,8 @@
-x = [[1,2],[5,7],[-1,2]]
+"""
+author: Romain Gautron
+Sorting functions for KD-tree implementation of KNN
+"""
+
 def shellSort(array,dim):
  "Shell sort using Shell's (original) gap sequence: n/2, n/4, ..., 1."
  gap = len(array) // 2
