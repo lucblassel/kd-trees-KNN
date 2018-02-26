@@ -148,7 +148,6 @@ def batch_knn(known_points,unknown_points,label_dic,k):
                 candidates_labels_dic[label_dic[candidate]] = 1
         predicted_label = max(candidates_labels_dic, key=candidates_labels_dic.get) #assuming if equality of count each key has a random chance to be the first of this result
         predictions.append(predicted_label)
-        tree.reinitialize()
         tree.reset()
     return predictions
 
@@ -156,7 +155,7 @@ def plot_points(known_points,known_labels,unknown_points,predicted_labels):
     x_known,y_known = zip(*known_points)
     x_unknown,y_unknown = zip(*unknown_points)
     #df_known = pd.DataFrame({'x' : x_known, 'y' : y_known, 'color' : known_labels})
-    #df_unknown = pd.DataFrame({'x' : x_unknown, 'y' : y_unknown, 'color' : predicted_label})    
+    #df_unknown = pd.DataFrame({'x' : x_unknown, 'y' : y_unknown, 'color' : predicted_label})
     color_labels = list(set(known_labels))
     rgb_values = sns.color_palette("Set2", 8)
     color_map = dict(zip(color_labels, rgb_values))
@@ -189,6 +188,10 @@ def main():
     pointsTest = data['data'][randIndex].tolist()
     targetTest = data['target'][randIndex].tolist()
 
+    #selecting columns of iris for plotting
+    toPlotTrain = np.delete(data['data'],randIndex,0)[:,[0,2]].tolist()
+    toPlotTest = data['data'][randIndex][:,[0,2]].tolist()
+
     print(pointsTrain,targetTrain)
     print(data['data'][randIndex])
 
@@ -201,20 +204,15 @@ def main():
     labels = ['A', 'A', 'B', 'B', 'C', 'A', 'C', 'B', 'B', 'C', 'A', 'A', 'A']
     label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
     dims = 2
-    # print(datetime.now())
-    # tree = createTree(pointList=cloud,dimensions=dims)
-    # print(datetime.now())
-    # print("tree created")
-    # print(tree)
 
     point = [4,8]
     unknown = [[1,8],[4,8]]
     # candidates = []
     # nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
     # printNeighbours(candidates)
-    predictions = batch_knn(cloud,cloud2,label_dic,1)
+    predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,1)
     print("Predicted classes : ",predictions)
-    plot_points(cloud,labels,cloud2,predictions)
+    plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
 
