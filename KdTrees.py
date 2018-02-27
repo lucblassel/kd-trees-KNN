@@ -171,21 +171,78 @@ def plot_points(known_points,known_labels,unknown_points,predicted_labels):
     plt.scatter(x_unknown, y_unknown, c=colors_unknown,marker='+')
     plt.show()
 
-def splitter(original_set,k):
+def cv_splitter(original_set_len,k):
     splits = []
-    N = len(original_set)
-    fold_size = N//k
-    indexes =  list(range(N))
+    if k>original_set_len:
+        fold_size = 1
+    else :
+        fold_size = original_set_len//k
+    print("original_set_len : ",original_set_len)
+    indexes =  list(range(original_set_len))
     while len(indexes) >= fold_size:
-        split = np.choice(indexes, size=fold_size, replace=False)
+        split = np.random.choice(indexes, size=fold_size, replace=False).tolist()
         splits.append(split)
         indexes = list(set(indexes)-set(split))
     if len(indexes) > 0:
-        splits.append(indexes)
+        splits[-1].extend(indexes)
     return splits
 
+def train_test_splitter(original_set_len,test_percentage):
+    test_indexes = []
+    all_indexes =  list(range(original_set_len))
+    N_test = int(np.round(original_set_len*test_percentage))
+    test_indexes = np.random.choice(all_indexes, size=N_test, replace=False).tolist()
+    return test_indexes
 
-#def cv():
+def test_to_train_indexes(original_set_len,test_indexes):
+    all_indexes = list(range(original_set_len))
+    print ("all_indexes : ",all_indexes)
+    print ("test_indexes : ",test_indexes)
+    train_indexes = list(set(all_indexes)-set(test_indexes))
+    return train_indexes
+
+def cv(known_points,test_percentage,k_fold,k_nn,label_dic,reps):
+    acc_results_cv=[]
+    original_set_len = len(known_points)
+    test_indexes = train_test_splitter(original_set_len,test_percentage)
+    train_indexes = test_to_train_indexes(original_set_len,test_indexes)
+    test_set = [known_points[i] for i in test_indexes]
+    test_set_labels = []
+    for test_point in test_set:
+        test_set_labels.append(label_dic[tuple(test_point)])
+    train_set = [known_points[i] for i in train_indexes]
+    train_set_len = len(train_set)
+    c = 0
+    for rep in range(reps):
+        d = 0
+        print("cv rep number : ",c+1)
+        test_cv_indexes_list = cv_splitter(train_set_len,k_fold)
+        for test_cv_indexes in test_cv_indexes_list:
+            print("cv fold number : ",d+1)
+            train_cv_indexes = test_to_train_indexes(train_set_len,test_cv_indexes)
+            test_cv_set = [train_set[i] for i in test_cv_indexes]
+            train_cv_set = [train_set[i] for i in train_cv_indexes]
+            test_cv_labels = []
+            for test_cv_point in test_cv_set:
+                test_cv_labels.append(label_dic[tuple(test_cv_point)])
+            predictions_cv = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
+            acc_cv = accuracy(test_cv_labels,predictions_cv)
+            acc_results_cv.append(acc_cv)
+            d += 1
+        c += 1
+    mean_acc_cv = np.mean(acc_results_cv)
+    predictions_test = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
+    acc_test = accuracy(test_set_labels,predictions_test)
+    print("ending cv at mean inner test accuracy : ",mean_acc_cv," test acc : ",acc_test)
+    return mean_acc_cv,acc_test
+
+def accuracy(y_true,y_pred):
+    bool_res = []
+    for i in range(len(y_true)):
+        bool_res.append(y_true[i] == y_pred[i])
+    int_res = list(map(int,bool_res))
+    accuracy = np.sum(int_res)/len(y_true)
+    return accuracy
 
 def main():
     num = 100
@@ -212,6 +269,7 @@ def main():
 
     pointsDictTrain = toDict(pointsTrain,targetTrain)
     pointsDictTest = toDict(pointsTest,targetTest)
+    dicIris = {**pointsDictTrain, **pointsDictTest}
 
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ (FOR TESTING)
     cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
@@ -220,8 +278,6 @@ def main():
     label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
     dims = 2
 
-    point = [4,8]
-    unknown = [[1,8],[4,8]]
     # candidates = []
     # nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
     # printNeighbours(candidates)
@@ -230,7 +286,7 @@ def main():
     plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
-    print(splitter(range(12),5))
+    print(cv(pointsTrain,.1,2,2,dicIris,10))
 
 if __name__=="__main__":
     main()
