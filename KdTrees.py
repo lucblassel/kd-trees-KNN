@@ -172,6 +172,21 @@ def plot_points(known_points,known_labels,unknown_points,predicted_labels):
     plt.scatter(x_unknown, y_unknown, c=colors_unknown,marker='+')
     plt.show()
 
+def splitter(original_set,k):
+    splits = []
+    N = len(original_set)
+    fold_size = N//k
+    indexes =  list(range(N))
+    while len(indexes) >= fold_size:
+        split = np.choice(indexes, size=fold_size, replace=False)
+        splits.append(split)
+        indexes = list(set(indexes)-set(split))
+    if len(indexes) > 0:
+        splits.append(indexes)
+    return splits
+
+
+#def cv():
 
 def main():
     num = 100
@@ -217,6 +232,7 @@ def main():
     plot_points(cloud,labels,cloud2,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
+    print(splitter(range(12),5))
 
 if __name__=="__main__":
     main()
