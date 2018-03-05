@@ -12,7 +12,7 @@ def cv_splitter(original_set_len,k):
         fold_size = 1
     else :
         fold_size = original_set_len//k
-    print("original_set_len : ",original_set_len)
+    # print("original_set_len : ",original_set_len)
     indexes =  list(range(original_set_len))
     while len(indexes) >= fold_size:
         split = np.random.choice(indexes, size=fold_size, replace=False).tolist()
@@ -31,8 +31,8 @@ def train_test_splitter(original_set_len,test_percentage):
 
 def test_to_train_indexes(original_set_len,test_indexes):
     all_indexes = list(range(original_set_len))
-    print ("all_indexes : ",all_indexes)
-    print ("test_indexes : ",test_indexes)
+    # print ("all_indexes : ",all_indexes)
+    # print ("test_indexes : ",test_indexes)
     train_indexes = list(set(all_indexes)-set(test_indexes))
     return train_indexes
 
@@ -47,13 +47,12 @@ def cv(known_points,test_percentage,k_fold,range_k_nn,label_dic,reps):
         test_set_labels.append(label_dic[tuple(test_point)])
     train_set = [known_points[i] for i in train_indexes]
     train_set_len = len(train_set)
-    c = 0
     cv_result_test = []
     cv_result_train = []
     for k_nn in range_k_nn:
         for rep in range(reps):
             d = 0
-            print("cv rep number : ",c+1)
+            print("cv rep number : ",rep+1)
             test_cv_indexes_list = cv_splitter(train_set_len,k_fold)
             for test_cv_indexes in test_cv_indexes_list:
                 print("cv fold number : ",d+1)
@@ -67,7 +66,6 @@ def cv(known_points,test_percentage,k_fold,range_k_nn,label_dic,reps):
                 acc_cv = accuracy(test_cv_labels,predictions_cv)
                 acc_results_cv.append(acc_cv)
                 d += 1
-            c += 1
         cv_result_train.append(np.mean(acc_results_cv))
         predictions_test = batch_knn(train_set,test_set,label_dic,k_nn)
         cv_result_test.append(accuracy(test_set_labels,predictions_test))

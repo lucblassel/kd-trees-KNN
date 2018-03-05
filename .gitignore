@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#LATEX files
+*.aux
+*latekmk
+*.fls
+*.out
+*.log
+*.synctex.gz

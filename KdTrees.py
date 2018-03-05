@@ -139,7 +139,7 @@ def batch_knn(known_points,unknown_points,label_dic,k):
     tree = createTree(pointList=known_points,dimensions=len(known_points[0]))
     predictions = []
     for point in unknown_points:
-        print(point)
+        # print(point)
         candidates =[]
         nearestNeighbours(point=point,node=tree,candidateList=candidates,k=k)
         candidates_labels_dic = {}
@@ -205,7 +205,8 @@ def main():
     x,y = loadDatasetLeaf()
     dic = toDict(x,y)
 
-    print(cv(x,.1,10,[2,5,10,20],dic,2))
+    k_list = [1,2,5,10,20]
+    cv_result_test,cv_result_train=cv(x,.1,10,k_list,dic,2)
 
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ (FOR TESTING)
     # cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
@@ -222,8 +223,7 @@ def main():
     # plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
-    k_list = [1,10,20]
-    cv_result_test,cv_result_train = cv(pointsTrain,.1,2,k_list,dicIris,10)
+    # cv_result_test,cv_result_train = cv(pointsTrain,.1,2,k_list,dicIris,10)
     cv_plotter(k_list,cv_result_test,cv_result_train)
 
 if __name__=="__main__":
