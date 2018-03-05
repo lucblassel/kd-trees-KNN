@@ -234,7 +234,7 @@ def cv(known_points,test_percentage,k_fold,range_k_nn,label_dic,reps):
                 d += 1
             c += 1
         cv_result_train.append(np.mean(acc_results_cv))
-        predictions_test = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
+        predictions_test = batch_knn(train_set,test_set,label_dic,k_nn)
         cv_result_test.append(accuracy(test_set_labels,predictions_test))
         print("ending cv at mean inner test accuracy : ",cv_result_train[-1]," test acc : ",cv_result_test[-1])
     return cv_result_test,cv_result_train
@@ -289,7 +289,7 @@ def main():
     plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
-    print(cv(pointsTrain,.1,2,[2,3,4,10],dicIris,10))
+    print(cv(pointsTrain,.1,2,[1,10,20],dicIris,10))
 
 if __name__=="__main__":
     main()
