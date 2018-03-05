@@ -201,7 +201,7 @@ def test_to_train_indexes(original_set_len,test_indexes):
     train_indexes = list(set(all_indexes)-set(test_indexes))
     return train_indexes
 
-def cv(known_points,test_percentage,k_fold,k_nn,label_dic,reps):
+def cv(known_points,test_percentage,k_fold,range_k_nn,label_dic,reps):
     acc_results_cv=[]
     original_set_len = len(known_points)
     test_indexes = train_test_splitter(original_set_len,test_percentage)
@@ -213,28 +213,31 @@ def cv(known_points,test_percentage,k_fold,k_nn,label_dic,reps):
     train_set = [known_points[i] for i in train_indexes]
     train_set_len = len(train_set)
     c = 0
-    for rep in range(reps):
-        d = 0
-        print("cv rep number : ",c+1)
-        test_cv_indexes_list = cv_splitter(train_set_len,k_fold)
-        for test_cv_indexes in test_cv_indexes_list:
-            print("cv fold number : ",d+1)
-            train_cv_indexes = test_to_train_indexes(train_set_len,test_cv_indexes)
-            test_cv_set = [train_set[i] for i in test_cv_indexes]
-            train_cv_set = [train_set[i] for i in train_cv_indexes]
-            test_cv_labels = []
-            for test_cv_point in test_cv_set:
-                test_cv_labels.append(label_dic[tuple(test_cv_point)])
-            predictions_cv = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
-            acc_cv = accuracy(test_cv_labels,predictions_cv)
-            acc_results_cv.append(acc_cv)
-            d += 1
-        c += 1
-    mean_acc_cv = np.mean(acc_results_cv)
-    predictions_test = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
-    acc_test = accuracy(test_set_labels,predictions_test)
-    print("ending cv at mean inner test accuracy : ",mean_acc_cv," test acc : ",acc_test)
-    return mean_acc_cv,acc_test
+    cv_result_test = []
+    cv_result_train = []
+    for k_nn in range_k_nn:
+        for rep in range(reps):
+            d = 0
+            print("cv rep number : ",c+1)
+            test_cv_indexes_list = cv_splitter(train_set_len,k_fold)
+            for test_cv_indexes in test_cv_indexes_list:
+                print("cv fold number : ",d+1)
+                train_cv_indexes = test_to_train_indexes(train_set_len,test_cv_indexes)
+                test_cv_set = [train_set[i] for i in test_cv_indexes]
+                train_cv_set = [train_set[i] for i in train_cv_indexes]
+                test_cv_labels = []
+                for test_cv_point in test_cv_set:
+                    test_cv_labels.append(label_dic[tuple(test_cv_point)])
+                predictions_cv = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
+                acc_cv = accuracy(test_cv_labels,predictions_cv)
+                acc_results_cv.append(acc_cv)
+                d += 1
+            c += 1
+        cv_result_train.append(np.mean(acc_results_cv))
+        predictions_test = batch_knn(train_cv_set,test_cv_set,label_dic,k_nn)
+        cv_result_test.append(accuracy(test_set_labels,predictions_test))
+        print("ending cv at mean inner test accuracy : ",mean_acc_cv," test acc : ",acc_test)
+    return cv_result_test,cv_result_train
 
 def accuracy(y_true,y_pred):
     bool_res = []
