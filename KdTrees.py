@@ -10,6 +10,8 @@ from datetime import datetime
 from sklearn.datasets import load_iris
 
 import math
+import csv
+
 import numpy as np
 import seaborn as sns
 import pandas as pd
@@ -114,21 +116,21 @@ def nearestNeighbours(point,node,candidateList,distMin=math.inf,k=1):
     candidateList.sort(key=lambda point: point[0])
 
     if len(candidateList)>k:
-        print("removing candidates")
+        # print("removing candidates")
         candidateList.pop() #removes last one (biggest distance)
 
     if  point[node.axis] < node.value[node.axis]:
         nearestNeighbours(point, node.left, candidateList,distMin,k)
         if node.value[node.axis] - point[node.axis] <= distMin:
             nearestNeighbours(point, node.right, candidateList,distMin,k)
-        else:
-            print("pruned right branch of "+str(node.value))
+        # else:
+        #     print("pruned right branch of "+str(node.value))
     else:
         nearestNeighbours(point, node.right, candidateList,distMin,k)
         if point[node.axis] - node.value[node.axis] <= distMin:
             nearestNeighbours(point, node.left, candidateList,distMin,k)
-        else:
-            print("pruned left branch of "+str(node.value))
+        # else:
+        #     print("pruned left branch of "+str(node.value))
 
     node.visited = True
 
@@ -247,14 +249,7 @@ def accuracy(y_true,y_pred):
     accuracy = np.sum(int_res)/len(y_true)
     return accuracy
 
-def main():
-    num = 100
-    dims = 3
-    min = -1000
-    max = 1000
-    # cloud = genCloud(num,dims,min,max)
-
-    #testing with iris dataset
+def loadDatasetIris():
     data = load_iris()
     randIndex = np.random.choice(len(data['data']),10)
 
@@ -270,26 +265,51 @@ def main():
     print(pointsTrain,targetTrain)
     print(data['data'][randIndex])
 
-    pointsDictTrain = toDict(pointsTrain,targetTrain)
-    pointsDictTest = toDict(pointsTest,targetTest)
-    dicIris = {**pointsDictTrain, **pointsDictTest}
+    return pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest
+
+def loadDatasetLeaf():
+    data = pd.read_csv('train.csv',header=0)
+    exclude = ['species']
+    x = data.loc[:,data.columns.difference(exclude)]
+    y = data[['species']]
+    return x.as_matrix().tolist(),[i[0] for i in y.values]
+
+
+def main():
+    num = 100
+    dims = 3
+    min = -1000
+    max = 1000
+    # cloud = genCloud(num,dims,min,max)
+
+    #testing with iris dataset
+    # pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = loadDatasetIris()
+    #
+    # pointsDictTrain = toDict(pointsTrain,targetTrain)
+    # pointsDictTest = toDict(pointsTest,targetTest)
+    # dicIris = {**pointsDictTrain, **pointsDictTest}
+
+    x,y = loadDatasetLeaf()
+    dic = toDict(x,y)
+
+    print(cv(x,.1,10,[2,5,10,20],dic,2))
 
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ (FOR TESTING)
-    cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
-    cloud2 = [[3, 6],[3, 7],[1, 9]]
-    labels = ['A', 'A', 'B', 'B', 'C', 'A', 'C', 'B', 'B', 'C', 'A', 'A', 'A']
-    label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
-    dims = 2
+    # cloud = [[1, 3],[1, 8], [2, 2], [2, 10], [3, 6], [4, 1], [5, 4], [6, 8], [7, 4], [7, 7], [8, 2], [8, 5],[9, 9]]
+    # cloud2 = [[3, 6],[3, 7],[1, 9]]
+    # labels = ['A', 'A', 'B', 'B', 'C', 'A', 'C', 'B', 'B', 'C', 'A', 'A', 'A']
+    # label_dic = {(1, 3):"A",(1, 8):"A", (2, 2):"B", (2, 10):"B", (3, 6):"C", (4, 1):"A", (5, 4):"C", (6, 8):"B", (7, 4):"B", (7, 7):"C", (8, 2):"A", (8, 5):"A",(9, 9):"A"}
+    # dims = 2
 
     # candidates = []
     # nearestNeighbours(point=point,node=tree,candidateList=candidates,k=3)
     # printNeighbours(candidates)
-    predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,1)
-    print("Predicted classes : ",predictions)
-    plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
+    # predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,1)
+    # print("Predicted classes : ",predictions)
+    # plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
     #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
     #printPreds(predictions,pointsDictTest)
-    print(cv(pointsTrain,.1,2,[1,10,20],dicIris,10))
+    # print(cv(pointsTrain,.1,2,[1,10,20],dicIris,10))
 
 if __name__=="__main__":
     main()
