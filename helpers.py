@@ -39,7 +39,7 @@ def print_preds(predictions,labelDict):
 
     print("precision: "+str(100*precision/c)+"%")
 
-def load_dataset_iris(twoClasses):
+def load_dataset_iris():
     data = load_iris()
     randIndex = np.random.choice(len(data['data']),10)
 

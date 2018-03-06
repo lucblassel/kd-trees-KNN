@@ -153,43 +153,84 @@ def batch_knn(knownPoints,unknownPoints,labelDic,k):
     return predictions
 
 def main():
-    num = 100
-    dims = 3
-    min = -1000
-    max = 1000
-    cloud = gen_cloud(num,dims,min,max)
 
-    #testing with iris dataset
-    # pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris()
-    #
-    # pointsDictTrain = to_dict(pointsTrain,targetTrain)
-    # pointsDictTest = to_dict(pointsTest,targetTest)
-    # dicIris = {**pointsDictTrain, **pointsDictTest}
+    """
+    Here we choose what we want to execute
+    """
+    randomCloud = False
+    example = True
+    iris = False
+    irisCv = True
+    leaf = False
 
-    x,y = load_dataset_leaf()
-    dic = to_dict(x,y)
+    if randomCloud:
+        """
+        we generate a random dataset with following properties: num points in dims dimensions, with coordinate values contained between min and max.
+        we then build a k-d tree of this dataset and print it
+        """
+        num = 100
+        dims = 3
+        min = -1000
+        max = 1000
+        cloud = gen_cloud(num,dims,min,max)
+        randomTree = create_tree(cloud,dims)
+        print(randomTree)
 
-    kList = [1,2,5,10,20]
-    cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)
+    if example:
+        """
+        we use the data from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ to create the trees
+        and search for k nearest neighbours for the point to classify
+        """
+        dims = 2
+        cloud,labels = load_dataset_example()
+        labelDic = to_dict(cloud,labels)
+        tree = create_tree(cloud,dims)
+        print(tree)
 
-    cloud,labels = load_dataset_example()
-    cloud2 = [[3, 6],[3, 7],[1, 9]]
-    point = [4,8]
-    labelDic = to_dict(cloud,labels)
-    dims = 2
+        # for just one point
+        point = [4,8]
+        candidates = []
+        nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+        print("nearest neighbours of",point,":")
+        print_neighbours(candidates)
 
-    # tree = create_tree(cloud,dims)
-    # candidates = []
-    # nearest_neighbours(point,tree,candidates,k=3)
-    # nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
-    # print_neighbours(candidates)
-    # predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,1)
-    # print("Predicted classes : ",predictions)
-    # plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
-    #predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
-    #print_preds(predictions,pointsDictTest)
-    # cvResultTest,cvResultTrain = cv(pointsTrain,.1,2,kList,dicIris,10)
-    cv_plotter(kList,cvResultTest,cvResultTrain)
+        #for multiple points
+        cloud2 = [[3, 6],[3, 7],[1, 9]]
+        predictions = batch_knn(cloud,cloud2,labelDic,2)
+        print(predictions)
+
+    if iris:
+        """
+        we test the performance of our method using data from the iris dataset and plots the results
+        """
+        pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris()
+
+        pointsDictTrain = to_dict(pointsTrain,targetTrain)
+        pointsDictTest = to_dict(pointsTest,targetTest)
+        dicIris = {**pointsDictTrain, **pointsDictTest}
+        predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
+
+        print_preds(predictions,pointsDictTest)
+        plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
+
+        if irisCv:
+            kList = [1,2,5,10,20]
+            cvResultTest,cvResultTrain = cv(pointsTrain,.1,2,kList,dicIris,10)
+            cv_plotter(kList,cvResultTest,cvResultTrain)
+
+    if leaf:
+        """
+        we test the performance of our algorithm using the leaf dataset and k-fold cross validation, which is in the train.csv file
+        we plot the results of the CV. The leaf dataset has a high dimensionality
+        """
+        x,y = load_dataset_leaf()
+        dic = to_dict(x,y)
+
+        kList = [1,2,5,10,20]
+        cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)
+        cv_plotter(kList,cvResultTest,cvResultTrain)
+
+
 
 if __name__=="__main__":
     main()
