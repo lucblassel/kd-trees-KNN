@@ -11,6 +11,8 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage[linesnumbered,boxed]{algorithm2e}
+\usepackage{caption}
+\usepackage{float}
 
 \usepackage[left=2cm,right=2cm,top=1.5cm,bottom=1.5cm]{geometry}
 
@@ -28,20 +30,24 @@
   \item each of these points is one of two colors: Blue or Red
   \item Some of the points have no assigned colors
 \end{itemize}
-\paragraph{}The goal of this excercise os to accurately guess the color of the points for which we don't know it. This is a very common problem in machine learning.
+\paragraph{}The goal of this exercise is to accurately guess the color of the points for which we don't know it. This is a very common problem in machine learning.
 
 \subsection{A simple example}
-\paragraph{}
-
+\paragraph{}We will use this simple dataset in a $2$ dimensional space:
+\begin{align*}
+  X &=\{(1, 3),(1, 8), (2, 2), (2, 10), (3, 6), (4, 1), (5, 4), (6, 8), (7, 4), (7, 7), (8, 2), (8, 5), (9, 9)\}\\
+  Y &= \{Blue,\ Blue,\ Blue,\ Blue,\ Blue,\ Blue,\ Red,\ Red,\ Red,\ Red,\ Red,\ Red,\ Red \}
+\end{align*}
+\paragraph{}We are given the following point: $(4,8)$ and we want to determine its color.
 
 \section{What is used today?}
 \subsection{A lot of different classification methods}
-\paragraph{}There are hundreds of different methods to be able to classify these points into labels.
+\paragraph{}There are hundreds of different methods to be able to classify these points into labels. ranging from simple: like k-NN or logistic regression to more complicated with methods like recurring neural networks, kernel methods, random forests, etc\ldots In our case, we are placed in a euclidean space of $d$ dimensions, so we will only be dealing with real coordinates \emph{(ie. purely numerical values)} so we can implement simple numerical methods. We have chosen to implement the $k$ nearest neighbour method to classify our unknown points. One of the reasons we chose this algorithm is that the naive approach is very straightforward but there is a lot of potential to improve the runtime and make it perform better in different use-cases (like high dimensionality)
 
 \subsection{KNN}
-\paragraph{}The principle behind the $k$ nearest neighbours is very simple we try to find the k nearest points to the one we are trying to classify according to some distance function.
+\paragraph{}The principle behind the $k$ nearest neighbours is very simple: we try to find the k nearest points to the one we are trying to classify according to some distance function.
 \subsubsection{Finding the nearest neighbour}
-\paragraph{}The na\"ive approach is very simple to implement, we choose a distance function, calculate the distance of the point we want to classify to all the points in the training set and we return the point for which that distance is minimal.
+\paragraph{}The naive approach is very simple to implement, we choose a distance function, calculate the distance of the point we want to classify to all the points in the training set and we return the point for which that distance is minimal.
 \paragraph{}The distance used in this nearest neighbour search can be any of a number of functions ($x$ being our known point, $q$ the point we want to classify and $d$ the number of dimensions):
 \begin{description}
   \item[Euclidean distance: ]$d(x,q)=\sqrt{\sum^d_{i=1}(x_i-q_i)^2}$
@@ -50,12 +56,12 @@
 \end{description}
 \paragraph{}In a lot of cases the Euclidean distance is used, so in our implementation we will use it as well.
 \subsubsection{Transposing to $k$ nearest neighbours}
-\paragraph{}To select the k nearest neighbours we can simply run the nearest neighbour algorithm while keeping a priority queue of points sorted according to their distance and keep the $k$ points with the lowest distances. this can also be acheived by keeping the points in a list along with their distance (rather thatn a priority queue) and sort the list according to distances after calculating all distances.
-\paragraph{}Once we have the $k$ nearest neighbours to assign a label to our unclasssified point it is a simple majority vote situation where the label that is the most present in the $k$ nearest neighbours is assigned to the point.\\
+\paragraph{}To select the k nearest neighbours we can simply run the nearest neighbour algorithm while keeping a priority queue of points sorted according to their distance and keep the $k$ points with the lowest distances. this can also be achieved by keeping the points in a list along with their distance (rather than a priority queue) and sort the list according to distances after calculating all distances.
+\paragraph{}Once we have the $k$ nearest neighbours to assign a label to our unclassified point it is a simple majority vote situation where the label that is the most present in the $k$ nearest neighbours is assigned to the point.\\
 We must of course take in to account the value of $k$ if $k=1$ then we are in the nearest neighbour problem, if $k$ is big then what happens to size complexity, what happens if there is a tie in our k nearest neighbours?
 
 \subsubsection{How can we lower the number of calculations?}
-\paragraph{}In the na\"ive approach we calculate the ditance of the unknown point to all the other points of the dataset. This is of course very costly computation-wise it would be best to eliminate some possibilities
+\paragraph{}In the naive approach we calculate the distance of the unknown point to all the other points of the dataset. This is of course very costly computation-wise it would be best to eliminate some possibilities
 
 
 \subsection{Exact KNN versus approximate KNN}
@@ -64,18 +70,18 @@ We must of course take in to account the value of $k$ if $k=1$ then we are in th
 
 
 \section{What did we implement?}
-\paragraph{}Of we course, as we wanted to be as efficient as possible, we did not implement a naive versoin of the k-NN method. We used k-dimensional trees \emph{(ie. k-d trees)} to help us prune the search space and be able to be more efficient with our computing. k-d trees allow us to partition the k-dimensional Euclidean space into subspaces and organize our known points into a data structure similar to binary-search trees.
+\paragraph{}Of we course, as we wanted to be as efficient as possible, we did not implement a naive version of the k-NN method. We used k-dimensional trees \emph{(ie. k-d trees)} to help us prune the search space and be able to be more efficient with our computing. k-d trees allow us to partition the k-dimensional Euclidean space into subspaces and organize our known points into a data structure similar to binary-search trees.
 \subsection{k-d trees}
 \paragraph{}To be show how this structure is created we will use a simple 2-dimensional example, it is simpler to represent and visualize but higher dimensional k-d trees work in the exact same way.
-\paragraph{}The dataset we have is the following:
+\paragraph{}The dataset we have is the same as the one in our first example
 \begin{equation*}
-  \{(1, 3),(1, 8), (2, 2), (2, 10), (3, 6), (4, 1), (5, 4), (6, 8), (7, 4), (7, 7), (8, 2), (8, 5), (9, 9)\}
+  X=\{(1, 3),(1, 8), (2, 2), (2, 10), (3, 6), (4, 1), (5, 4), (6, 8), (7, 4), (7, 7), (8, 2), (8, 5), (9, 9)\}
 \end{equation*}
-\paragraph{}To construct the tree, we will alternatively split on the median of the first dimension and then the second at each level. So on level on we will split on the median of dimension 1, on the second level we will split on the median of the second dimension, on the third level we will split on the first dimension again and son on and so forth until all our points are placed in the tree. Since we always split on the median according to the selected dimesion, we can assure that the tree will be as balanced as it can be, which will speed up any subsequent searching operations in that tree.
+\paragraph{}To construct the tree, we will alternatively split on the median of the first dimension and then the second at each level. So on level on we will split on the median of dimension 1, on the second level we will split on the median of the second dimension, on the third level we will split on the first dimension again and son on and so forth until all our points are placed in the tree. Since we always split on the median according to the selected dimension, we can assure that the tree will be as balanced as it can be, which will speed up any subsequent searching operations in that tree.
 \paragraph{}So if we implement this method to our dataset we will have:\\
 \begin{enumerate}
-  \item the median on the first dimension is $(5,4)$, so this point will be our first node of the tree. On the left subtree we will have all the points for which $x_1<5$ and on the right subtree all the points for which $x_2>=5$.
-  \item We now place ourselves in the left subtree of $(5,4)$. We will now split the sub-space according to the secon dimension. The median according to the second dimension is now $(3,6)$ so in the left subtree of $(3,6)$ will be all the points of the sub-space for which $x_2<6$ and on the right subtree all the points for which $x_2>=6$.
+  \item the median on the first dimension is $(5,4)$, so this point will be our first node of the tree. On the left subtree we will have all the points for which $x_1<5$ and on the right subtree all the points for which $x_2\geq5$.
+  \item We now place ourselves in the left subtree of $(5,4)$. We will now split the sub-space according to the second dimension. The median according to the second dimension is now $(3,6)$ so in the left subtree of $(3,6)$ will be all the points of the sub-space for which $x_2<6$ and on the right subtree all the points for which $x_2\geq6$.
   \item We build the tree in a recursive manner building the left subtree first and then the right subtree.
 \end{enumerate}
 \paragraph{}In the end we end up with the following k-d tree:\\
@@ -112,10 +118,10 @@ We must of course take in to account the value of $k$ if $k=1$ then we are in th
   \draw (5)--(11);
   \draw (6)--(12);
 \end{tikzpicture}
-\paragraph{}The red nodes are splitted on the first dimension, and the green nodes on the second.
+\paragraph{}The red nodes are splitting on the first dimension, and the green nodes on the second.
 \end{center}
-\paragraph{}It is also easy to see how this can be generalized to higher dimensions, the process is identical except that instead of looping on $2$ dimensions, we loop on $d$ dimensions. For instance if we have $3$ dimensions, the first $3$ levels are splitted on their corresponding dimensions and then the subsequent levels of the tree are splitted according to the remainder of the euclidean division $\frac{level}{d}$, so for example the $4^{th}$ level of the tree will be split along the $1^{st}$ dimension.
-\paragraph{}So in order to build the k-d tree given a set of points we can follow this algorithm:%\\\medskip\\
+\paragraph{}It is also easy to see how this can be generalized to higher dimensions, the process is identical except that instead of looping on $2$ dimensions, we loop on $d$ dimensions. For instance if we have $3$ dimensions, the first $3$ levels are split on their corresponding dimensions and then the subsequent levels of the tree are split according to the remainder of the euclidean division $\frac{level}{d}$, so for example the $4^{th}$ level of the tree will be split along the $1^{st}$ dimension.
+\paragraph{}So in order to build the k-d tree given a set of points we can follow this algorithm:
 \begin{center}
 \begin{algorithm}[H]
   \SetKwFunction{FRecurs}{createTree}%
@@ -134,9 +140,9 @@ We must of course take in to account the value of $k$ if $k=1$ then we are in th
   median $\leftarrow \frac{length(points)}{2}$\;
   \BlankLine
   \BlankLine
-  root $\leftarrow$ new node(value = points[median], parent=parent,axis=axis,vsited=False)\;
+  root $\leftarrow$ new node(value = points[median], parent=parent,axis=axis,visited=False)\;
   root.left $\leftarrow$ \FRecurs{points[:median],dimensions,depth+1,root}\;
-  root.right $\leftarrow$ \FRecurs{point[median:],dimesions,depth+1,root}\;
+  root.right $\leftarrow$ \FRecurs{point[median:],dimensions,depth+1,root}\;
   \BlankLine
   \BlankLine
   \KwRet{root}\;
@@ -147,26 +153,161 @@ We must of course take in to account the value of $k$ if $k=1$ then we are in th
 \paragraph{}It is also interesting to note that on line $6$ of the algorithm, the points list is sorted, depending on the sorting method the time complexity will not be the same. We use either shellSort or quicksort in our implementation.
 
 \subsection{k nearest neighbour search}
-\paragraph{}Now that we have our data organized as a k-d tree, we must use this data-structure to our avantage as we search for the k nearest neighbours.
+\paragraph{}Now that we have our data organized as a k-d tree, we must use this data-structure to our advantage as we search for the k nearest neighbours. The search begins with a tree traversal similar to the one we would do if we wanted to insert the point we want to classify. So if we take our example of a $2-d$ space and we want to find the nearest neighbour of the point $(4,8)$. To calculate distances we will use the Euclidean distance.
+\begin{enumerate}
+  \item We compare it to the first point in our tree. $d((4,8),(5,4)) = \sqrt{(4-5)^2+(8-4)^2}=4.12$ which becomes our minimum distance. since the first level cuts on the first dimension we compare: $4 < 5$ so we search in the left subtree first.
+  \item We now calculate $d((4,8),(3,6))=2.24$ which is now our closest distance.we now compare the second dimensions. $8>=6$ so we now search the right subtree.
+  \item $d((4,8),(2,10))=2.83 >2,24$ so we do nut update the closest distance and $(3,6)$ is still our current nearest neighbour. We explore the right subtree and it is empty.
+\end{enumerate}
+\paragraph{}At first glance we could think that this is it, we return $(3,6)$ as our closest neighbour and the search ends. However that is not the case, indeed the closest neighbour is $(6,8)$ as $d((4,8),(6,8))=2$. So how do we get to that point? Well for that we would go back up the tree and search unvisited subtrees. so we would go back up to $(2,10)$ explore it's left subtree, then go back up to $(3,6)$ and explore it's left subtree until we went back to the root node and explored it. We can notice however that $(6,8)$ is quite far away in the tree and would be among the last point to be explored. And even if it was amongst the first points to be explored we could not be sure that it was the closest point unless we had calculated all the distances before hand if we stick with tree traversal alone. Therefore we need a pruning rule that allows us to eliminate subtrees that we are sure cannot contain a nearer point than the current closest neighbour we know about.
+\paragraph{}This pruning rule can be easily visualized if we build bounding boxes each time we split points in our space:
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/Base.png}
+  \caption{we start of with our points in our $2-d$ space}
+  \label{base}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/split1.png}
+  \caption{We do our first split on $(5,4)$ along the $1^{st}$ dimension}
+  \label{split1}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/split2.png}
+  \caption{We do our second split along the $2^{nd}$ dimension}ding box we want to prune
+  \label{split2}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/splitFin.png}
+  \caption{Our space is divided in these bounding boxes at the end of the construction of our tree}
+  \label{splitFin}
+\end{figure}
+
+\paragraph{}The rule to prune our tree is to compare de closest distance we know to the closest distance possible between the point we want to classify and the bounding box we want to prune. This closest possible distance is a straight line in this $2-d$ space. So depending on the dimension along which the bounding box is defined we compare the closest distance we know about and the distance along the considered dimension between the point and the bounding box, if this dimension-wise distance is greater than the current nearest distance a nearer neighbour cannot possibly be contained in that bounding box, therefore we can prune the corresponding subtree and save some computing time.
+\paragraph{}To better understand how the pruning process works let's apply it step by step in our example:\\
+\begin{enumerate}
+  \item our first distance $d((4,8),(5,4)) = 4.12$ is greater than $|5-4|=1$ so we cannot prune the right subtree of $(5,4)$ and that is good because our real closest neighbour is in this right subtree.
+  \item as in our first search detailed above we the calculate $d((4,8),(3,6))=2.24$, we calculate the closest distance to the bounding box: $|8-6|=2<2.24$ so we cannot prune the left subtree.
+  \item the search goes along exactly like the first one until we search $(1,3)$ our closest distance for the moment is still $2.24$ however $|8-3|=5>2$ so we can eliminate the search of any of $(1,3)$'s subtrees.
+  \item after $(1,3)$ we have explored the entirety of the root's left subtree and we arrive in $(7,7)$ the distance is greater than $2.24$ so it not our new closest neighbour. We will explore the right subtree first because $8\geq7$. we cannot prune the left subtree because $|8-7|=1<2.24$
+  \item we explore $(9,9)$ explore it's subtrees and find our new nearest neighbour $(6,8)$ so now the closest distance is $2$
+  \item we explore the left subtree of $(7,7)$, and arrive at $(8,2)$ we will be able to prune the right subtree of $(8,2)$ and will have to explore the left.
+\end{enumerate}
+\paragraph{}In the end we will have pruned 2 subtrees which is not a lot, but that is because we are working with a small dataset, in larger spaces the pruning becomes a lot more important.
+\paragraph{}Now we can note that we have applied this technique for the search of only one nearest neighbour, however it is very easy to transpose that principle to a $k$ nearest neighbour search. Indeed we just have to save the $k$ best distances and their associated points in a length $k$ priority queue. If the queue is not full we add any point we explore to it, once it is full if we find a point with a closer distance than the last point of the queue we insert the new point in the queue and remove the last point of the queue (since it is prioritized according to distance, the last point of the queue will always be the furthest one from the point we want to classify).
+\paragraph{}The pruning works int he exact same way except that instead of comparing the dimension-wise distance to the closest distance, we compare it to the biggest distance in  our queue so that we know that the bounding box we are pruning cannot possibly contain a closer point than what we have already explored and found. Note that to be able to prune our priority queue must be full.
+\paragraph{}Therefore the algorithm to find the k -nearest neighbours becomes the following:
+
+\begin{algorithm}[H]
+\SetKw{Fn}{Function:}
+\SetKwFunction{FRecurs}{nearestNeighbours}%
+
+\Fn\FRecurs{\emph{point} point, \emph{node} node, \emph{list} candidateList, \emph{float} distMin,\emph{int} k}:{
+\BlankLine
+\KwData{point is the point we want to find nearest neihbours for, node is the starting node, so at the beginning it is the root of the $k-d$ tree. candidateList is the priority queue in which we store our candidate $k$ nearest neighbours. distMin is the current maximum distance amongst the closest neighbours found \emph{(ie. the biggest minimum distance)}}
+\BlankLine
+\BlankLine
+\If{node is null}{
+  \KwRet
+}
+\If{node.visited is True}{
+  \KwRet
+}
+\BlankLine
+\BlankLine
+dist $\leftarrow$ distance(point,node)\;
+\BlankLine
+\If{dist$<$distMin}{
+add(candidateList,[dist,point])\;
+sort(candidateList, according to distance)\;
+distMin $\leftarrow$ distance of last element of candidateList \emph{(ie biggest minimum distance)}\;
+}
+\BlankLine
+\If{length(candidateList)$>k$}{
+  remove last element of candidateList\;
+}
+\BlankLine
+\BlankLine
+\eIf{point[considered dimension]$<$node.value[considered dimension]}{
+  \FRecurs{point,node.left,candidateList,distMin,k}\;
+  \eIf{point[considered dimension]-node.value[considered dimension]$\leq$distMin}{
+      \FRecurs{point,node.right,candidateList,distMin,k}\;
+  }{
+  We prune node.right\;
+  }
+}{
+\FRecurs{point,node.right,candidateList,distMin,k}\;
+\eIf{point[considered dimension]-node.value[considered dimension]$\leq$distMin}{
+    \FRecurs{point,node.left,candidateList,distMin,k}\;
+}{
+We prune node.left\;
+}
+}
+\BlankLine
+\BlankLine
+node.visited $\leftarrow$ True\;
+}
+\end{algorithm}
+\paragraph{}We do not have to return candidateList because it is modified directly by the function. we can then see the $k$ nearest neighbours in the final candidate list. To assign a label to the point we simply look at the labels of all the points in the candidateList.
+\paragraph{}If we continue our example,
 
 
-
+\paragraph{}To classify multiple points we simply build the kd-tree with the labeled data, and apply the \texttt{nearestNeighbours} function to each unlabeled point. However the question of the choice of $k$ is important. Without any prior knowledge of the data it is difficult to say how many neighbours we need to be able to classify our unlabeled points correctly. to visualize this let's continue our example. We want to determine the label of the $(4,8)$ point. We know that the for a $k$ of $3$ we have these closest nodes:
+\begin{align*}
+  nearestNeighbours &= \{(6,8),(3,6),(2,10)\}\\
+  distances &= \{2, 2.24, 2.83\}
+\end{align*}
+\paragraph{}If we do a simple nearest neighbour search, the label assigned to $(4,8)$ will be the same as $(6,8)$, so the point will be labeled as \emph{Red}, however if we choose $k=2$ there is one \emph{Blue} point and one \emph{Red} point in the  list, so $(4,8)$ will be labeled on or the other with a $50\%$ chance each. If we choose $k=3$ however there are $2$ \emph{Blue} points and one \emph{Red} point so $(4,8)$ will be labeled as \emph{Blue}. With this simple example it is easy to see th eimpact of the choice of $k$ on calassification of unlabeled points. This is where cross-validation can help.
 
 \subsection{cross-validation}
+\paragraph{}In our program we have the possibility to implement $l$-fold cross-validation \emph{(it is usually called k-fold cross validation but to avoid confusion with the k from k-NN we will used l-fold CV)}, to be able to choose the best k. $l$-fold cross validation works in a very simple way. it is fed a labeled dataset which it splits into a training set and a testing set according to a \texttt{tesstProportion} parameter. The training set is then divided into $l$ folds, which is to say that is divided into $l$, non-overlapping, inner testing sets (and therfore also $l$ inner training sets which can overlap). We also feed the cross validation function a set of various $k$ values we would like to test $k$-nearest neighbours for. for each $k$ in the set the cross-validation function will execute the \texttt{nearestNeighbours} function on each inner training set for the points of the corresponding inner testing set and calculate the classification error on the considered fold \emph{(ie. considered inner testing and training sets)}, once we have the classification errors for each of the folds for a value of $k$, we average these errors and the result of that operation will be the performance of our $k$. We repeat this for all the values of $k$ in set of $k$s and the one with the lowest average error rate will be considered the best value of $k$ and be the one used to classify the points that we want to label.
+%TODO insert CV graph here!
 \subsection{best case complexity}
+\paragraph{}Given all that we have defined we can calculate the best case time complexity of our program
+\subsubsection{k-d tree creation}
+\paragraph{}We will calculate this complexity based on the assumption that our sorting algorithm that sorts the points list to find the median is quicksort which has best case complexity of $nlog(n)$ (This is also it's average time complexity which is why we chose this sorting algorithm). At each call of the function the points list is sorted then divided in two and the function s called recursively on each of these two half lists. Therefore computing time $T(n)$ can be calculated:
+\begin{align*}
+  T(n) &= nlog(n)+2T\left(\frac{n}{2}\right)\\
+       &= nlog(n)+2\left(\frac{n}{2}log\left(\frac{n}{2}\right)+2T\left(\frac{n}{4}\right)\right)\\
+       &= nlog(n)+nlog\left(\frac{n}{2}\right)+4T\left(\frac{n}{4}\right)\\
+       &= nlog(n)+nlog\left(\frac{n}{2}\right)+nlog\left(\frac{n}{4}\right)+\cdots+nlog\left(\frac{n}{2^{log(n)}}\right)\\
+       &= n\sum^{log(n)}_{i=0}log\left(\frac{n}{2^i}\right)\\
+       &= o\left(n\sum^{log(n)}_{i=0}log(n)\right)\\
+       &= o(nlog^2(n))
+\end{align*}
+\paragraph{}The reason the upper bound of the sum is $log(n)$ is called at every depth and there are roughly $log(n)$ levels in the k-d tree corresponding to $n$ points.
+\paragraph{}the nearest neighbour search, in the best case is akin to a insertion. Indeed in the best possible case for nearest neighbour search we are able to prune all the subtrees that we don't visit immediately and so we are able to find the nearest neighbours after traversing the levels so $T(n)=o(log(n))$
+\paragraph{}To find the $k$ nearest neighbours of a set of $p$ unlabeled points, we have to create the k-d tree once and then do $p$ nearest neighbour searches. Therefore the best case time complexity in this case would be: $T(n)=o(nlog^2(n)+plog(n))$, so if $p>nlog(n)$ then $T(n) = o(plog(n))$ otherwise $T(n) = o(nlog^2(n))$. The k fold search does not increase time complexity unless the set of $k$s to test and/or the number of folds is very high.
+
 \subsection{worst case complexity}
+\paragraph{}The worst case complexity of quicksort is $o(n^2)$ which is very bad, however it appears only if the array to sort is already sorted which we have no reason to be the case in our situation, indeed since we sort along one dimension at a time sorting along one axis could shuffle along other dimensions, so it is quite unlikely that the sorting algorithm would sort already sorted point lists. Nonetheless it is still interesting to calculate worst case complexity:\\
+\begin{align*}
+  T(n) &= n^2 +2T\left(\frac{n}{2}\right)\\
+       &= n^2 +2\left(\left(\frac{n}{2}\right)^2+2T\left(\frac{n}{4}\right)\right)\\
+       &= \sum^{log(n)}_{i=0}\frac{n^2}{2^i}\\
+       &= n^3(2-2^{-log(n)})\\
+       &= o(n^3)
+\end{align*}
+\paragraph{}So in the worst case the k-d tree could take a very long time to build. For our nearest neighbour search, the worst case is if we do not prune anything, and therefore the search becomes akin to a depth first search in a binary tree which is $o(n)$, however once again that is very unlikely to happen because that is the case if the binary tree is unbalanced but due to the way we create it (splitting the points into two equally sized subtrees) it is, by construction, balanced. In this case the worst case complexity to classify $p$ unlabeled points becomes $o(n^3+pn)$ so if $p>n^2$ then $T(n)=o(pn)$ otherwise $T(n)=o(n^3)$. This is not a good complexity, however due to the extreme unlikelihood of us being in that case, we felt that it was an  acceptable risk.
+\medskip
+\paragraph{}The case where k-d trees really can be useful is in the case of high dimensional data, because building the k-d tree does not depend on the dimensionality of the space the points are in, that part of the runtime is unaffected by the size of the space. However in high dimensional spaces distance computing becomes a lot more costly, and the pruning that allows us to compute a lot less distances give a significant advantage over a naive approach, whereas in low dimensional space the naive approach might be faster, as it's runtime would be in $o(n)$ for a single $k$-NN search.
+
 \subsection{results}
 
 
-
-
 \section{Future works to be done}
+
 \subsection{Change sort for tree creation}
-\paragraph{}Median of medians
+\paragraph{}One of the biggest factors of computing time is the creation of the tree. Indeed unless we have a very large set of points to classify \emph{(ie. $p>>n$)}, the time complexity of the final program is of the same magnitude as the one for the creation of the tree. Therefore any effort to speed up the creation of the tree. We saw that there were algorithms such as the median of median algorithms that would allow to create the tree in a $o(nlog(n))$ time complexity, which is better than the current complexity we have at the moment by a factor of $log(n)$. This better complexity would then allow us to run th algorithm more quickly.
 
 \subsection{Use approximate KNN for selecting hyper-parameters}
-\paragraph{}LSH in CV to select k
+\paragraph{}There are other improvements that could be made to lower the overall required computing time. One of the ides that we had is to use approximate nearest neighbour search instead of exact nearest neighbour search during the cross validation process to select the best value of $k$ and then use that best value in our k-d tree implementation to classify the unlabeled points. One of these approximate nearest neighbour methods we found very interesting is Locality Sensitive Hashing (LSH), that uses locality sensitive hash function, meaning hash functions that produce collisions for points that are close to on another. So the points that are close to one another end up in the same bucket when hashed. And therefore we can have a rough idea of the k nearest neighbours. his method can be very fast because there are no point to point comparisons required. The runtime is dependent of the hash function runtime. We could use this fast method to see which value of $k$ yields the best results during the cross-validation at a much lower runtime than with the naive approach or even the k-d tree approach.
 
+\subsection{Be able to use categorical data}
+\paragraph{}In various classification tasks, points are not necessarily in euclidean space, in some cases the points can have categorical variables. Even though it is not conventional to use k-NN with categorical data it could be interesting to be able to encode categorical values in numerical values and integrate them in the distance calculation. Or ignore the categorical values and calculate the distance with only the numerical values. In any case it would be good for this program to at least run without errors when presented with categorical data.
 
 
 
