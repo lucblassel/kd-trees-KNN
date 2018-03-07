@@ -176,9 +176,9 @@ def main():
     """
     randomCloud = False
     example = False
-    iris = True
+    iris = False
     irisCv = True
-    leaf = False
+    leaf = True
 
     timing = True #if true then functions are timed
 
@@ -250,7 +250,7 @@ def main():
         we test the performance of our method using data from the iris dataset and plots the results
         """
         print("\n\n"+100*"="+"\nIRIS\n\n")
-        pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris()
+        pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris(twoClasses=False)
 
         pointsDictTrain = to_dict(pointsTrain,targetTrain)
         pointsDictTest = to_dict(pointsTest,targetTest)
@@ -263,6 +263,7 @@ def main():
         if irisCv:
             kList = [1,2,5,10,20]
             cvResultTest,cvResultTrain = cv(pointsTrain,.1,2,kList,dicIris,10)
+            print(cvResultTest,cvResultTrain)
             cv_plotter(kList,cvResultTest,cvResultTrain)
 
     if leaf:
@@ -271,8 +272,17 @@ def main():
         we plot the results of the CV. The leaf dataset has a high dimensionality
         """
         print("\n\n"+100*"="+"\nleaf\n\n")
-        x,y = load_dataset_leaf()
+        x,y,xToPlot = load_dataset_leaf()
         dic = to_dict(x,y)
+        xTrain = x[:-50]
+        yTrain = y[:-50]
+        xTest = x[-50:]
+        yTest = y[-50:]
+        xTrainPlot = xToPlot[:-50]
+        xTestPlot = xToPlot[-50:]
+
+        predictions = batch_knn(xTrain,xTest,dic,3)
+        plot_points(xTrainPlot,yTrain,xTestPlot,predictions)
 
         kList = [1,2,5,10,20]
         cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)

@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pprint import pprint
 
 def cv_plotter(kList,accuracyTest,accuracyTrain):
 	fig, ax = plt.subplots()
@@ -38,10 +39,13 @@ def plot_points(knownPoints,knownLabels,unknownPoints,predictedLabels):
     #df_known = pd.DataFrame({'x' : xKnown, 'y' : yKnown, 'color' : knownLabels})
     #df_unknown = pd.DataFrame({'x' : xUnknown, 'y' : yUnknown, 'color' : predictedLabel})
     colorLabels = list(set(knownLabels))
-    rgbValues = sns.color_palette("Set2", 8)
+    rgbValues = sns.color_palette("Set2", 100)
     colorMap = dict(zip(colorLabels, rgbValues))
     colorsKnown = []
     colorsUnknown = []
+    pprint(knownLabels)
+    pprint(colorLabels)
+    pprint(colorMap)
 
     for knownLabel in knownLabels:
         colorsKnown.append(colorMap[knownLabel])
