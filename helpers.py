@@ -5,8 +5,23 @@ Helper functions for KD-tree implementation of KNN
 import numpy as np
 import pandas as pd
 
+import time
+
 from sklearn.datasets import load_iris
 from random import randint
+
+def timeit(function):
+    """
+    decorator that allows us to time a function call
+    """
+    def timed(*args, **kw):
+        ts = time.time()
+        result = function(*args, **kw)
+        te = time.time()
+        print ('%r  %2.2f ms' %(function.__name__, (te - ts) * 1000))
+        return result
+
+    return timed
 
 def print_neighbours(candidates):
     for node in candidates:
@@ -39,8 +54,17 @@ def print_preds(predictions,labelDict):
 
     print("precision: "+str(100*precision/c)+"%")
 
-def load_dataset_iris():
+def load_dataset_iris(twoClasses=True):
+    """
+    if twoClasses is True we select only classes 0 and 1
+    """
     data = load_iris()
+    if twoClasses:
+        x = data['data']
+        y = data['target']
+        data['data'] = np.array([x[i] for i in range(len(x)) if y[i] in (2,1)])
+        data['target'] = np.array([i for i in y if i in(2,1)])
+
     randIndex = np.random.choice(len(data['data']),10)
 
     pointsTrain = np.delete(data['data'],randIndex,0).tolist()

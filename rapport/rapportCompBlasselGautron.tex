@@ -13,6 +13,7 @@
 \usepackage[linesnumbered,boxed]{algorithm2e}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{hyperref}
 
 \usepackage[left=2cm,right=2cm,top=1.5cm,bottom=1.5cm]{geometry}
 
@@ -296,6 +297,55 @@ node.visited $\leftarrow$ True\;
 \paragraph{}The case where k-d trees really can be useful is in the case of high dimensional data, because building the k-d tree does not depend on the dimensionality of the space the points are in, that part of the runtime is unaffected by the size of the space. However in high dimensional spaces distance computing becomes a lot more costly, and the pruning that allows us to compute a lot less distances give a significant advantage over a naive approach, whereas in low dimensional space the naive approach might be faster, as it's runtime would be in $o(n)$ for a single $k$-NN search.
 
 \subsection{results}
+\paragraph{}Our method performs fairly well. A timing wrapper function has been implemented to be able to measure the runtime of our. We timed our batch\_knn function that calculates build a k-d tree on the dataset and then finds the $k$ nearest neighbours for a list of unlabeled points.
+\begin{center}
+
+\begin{figure}[H]
+  \includegraphics[width=0.9\textwidth]{figures/runK.png}
+  \caption{runtime depending on $k$}
+  \label{runK}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=0.9\textwidth]{figures/runDim.png}
+  \caption{runtime depending on $d$}
+  \label{runD}
+\end{figure}
+\end{center}
+\paragraph{}As we can see, changes in $k$ have almost no effect of the runtime of our function. When changing dimensions however we can see that $d$ has a significant impact on runtime.
+\begin{center}
+  \begin{figure}
+    \includegraphics[width=0.9\textwidth]{figures/runP.png}
+    \caption{runtime depending on $p$ the number of points to classify}
+    \label{runP}
+  \end{figure}
+\end{center}
+\paragraph{}As we can see this has a very pronounced effect on runtime. The curve with the $10\%$ legend is the cas where $p=0.1\cdot n$.
+\paragraph{}As to the accuracy of our classifications we tested our method on the Iris dataset for which we only selected two classes (out of the three).When we select the \emph{setosa} and \emph{versicolor} varieties, since they are very distinct groups, k-NN is very accurate:
+\begin{center}
+  \begin{figure}[H]
+    \includegraphics[width=\textwidth]{figures/irisClass.png}
+    \caption{classification  on \emph{setosa / versicolor}}
+    \label{class01}
+  \end{figure}
+\end{center}
+\paragraph{}The round points are our known points, the crosses are the points we classified. The class of the known point or the class we assign to unknown points is represented by the color. As we can see it is very easy to assign a label to our unknown points. And indeed our accuracy on this set is of $100\%$
+\paragraph{}When we compare \emph{versicolor} and \emph{virginica}, however the groups are no longer so easily separable:
+\begin{center}
+  \begin{figure}[H]
+    \includegraphics[width=\textwidth]{figures/irisClass2_1.png}
+    \caption{classification performance on \emph{virginica / versicolor}}
+    \label{class12}
+  \end{figure}
+\end{center}
+\paragraph{}In this case it can be interesting to do cross validation to figure out the best $k$. We did it on this dataset and got the following results:
+\begin{center}
+  \begin{figure}[H]
+    \includegraphics[width=0.9\textwidth]{figures/iris2_1_cv.png}
+    \caption{Cross validation results on \emph{virginica / versicolor}}
+    \label{cv}
+  \end{figure}
+\end{center}
+\paragraph{}We can see the accuracies are fairly similar we can that the highest testing accuracy is for $k=20$
 
 
 \section{Future works to be done}
@@ -308,7 +358,10 @@ node.visited $\leftarrow$ True\;
 
 \subsection{Be able to use categorical data}
 \paragraph{}In various classification tasks, points are not necessarily in euclidean space, in some cases the points can have categorical variables. Even though it is not conventional to use k-NN with categorical data it could be interesting to be able to encode categorical values in numerical values and integrate them in the distance calculation. Or ignore the categorical values and calculate the distance with only the numerical values. In any case it would be good for this program to at least run without errors when presented with categorical data.
-
+\pagebreak
+\appendix
+\section{code}
+\paragraph{}The code is available on \href{https://gitlab.com/zlanderous/complexite_projet}{this repository}.
 
 
 

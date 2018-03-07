@@ -8,8 +8,10 @@ from plotter import *
 from cv import *
 
 import math
+import gc
 
 import numpy as np
+
 
 class Node:
     """
@@ -85,6 +87,13 @@ def create_tree(pointList,dimensions,depth=0,parent=None):
 
     return root
 
+@timeit
+def timed_create_tree(*args,**kwargs):
+    """
+    times create_tree function
+    """
+    return create_tree(*args,**kwargs)
+
 def calculate_dist(point,node):
     """
     returns euclidean distance between 2 points
@@ -133,6 +142,10 @@ def nearest_neighbours(point,node,candidateList,distMin=math.inf,k=1,verbose=Fal
 
     node.visited = True
 
+@timeit
+def timed_nearest_neighbours(*args,**kwargs):
+    nearest_neighbours(*args,**kwargs)
+
 def batch_knn(knownPoints,unknownPoints,labelDic,k):
     tree = create_tree(pointList=knownPoints,dimensions=len(knownPoints[0]))
     predictions = []
@@ -152,57 +165,91 @@ def batch_knn(knownPoints,unknownPoints,labelDic,k):
         tree.reset()
     return predictions
 
+@timeit
+def timed_batch_knn(*args,**kwargs):
+    return batch_knn(*args,**kwargs)
+
 def main():
 
     """
     Here we choose what we want to execute
     """
     randomCloud = False
-    example = True
-    iris = False
+    example = False
+    iris = True
     irisCv = True
     leaf = False
+
+    timing = True #if true then functions are timed
 
     if randomCloud:
         """
         we generate a random dataset with following properties: num points in dims dimensions, with coordinate values contained between min and max.
         we then build a k-d tree of this dataset and print it
         """
-        num = 100
+        print("\n\n"+100*"="+"\nrandomCloud\n\n")
+        num = 10000
         dims = 3
         min = -1000
         max = 1000
         cloud = gen_cloud(num,dims,min,max)
-        randomTree = create_tree(cloud,dims)
-        print(randomTree)
+        if timing:
+            randomTree = timed_create_tree(cloud,dims)
+        else:
+            randomTree = create_tree(cloud,dims)
+
+        if num <= 100:
+            print(randomTree)
+
+        #calculate nearest neighbours of randomly generated point
+        point = gen_cloud(1,dims,min,max)[0]
+        candidates = []
+        if timing:
+            timed_nearest_neighbours(point=point,node=randomTree,candidateList=candidates,k=3)
+        else:
+            nearest_neighbours(point=point,node=randomTree,candidateList=candidates,k=3)
+
+        print_neighbours(candidates)
 
     if example:
         """
         we use the data from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ to create the trees
         and search for k nearest neighbours for the point to classify
         """
+        print("\n\n"+100*"="+"\nexample\n\n")
         dims = 2
         cloud,labels = load_dataset_example()
         labelDic = to_dict(cloud,labels)
-        tree = create_tree(cloud,dims)
+        if timing:
+            tree = timed_create_tree(cloud,dims)
+        else:
+            tree = create_tree(cloud,dims)
         print(tree)
 
         # for just one point
         point = [4,8]
         candidates = []
-        nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+        if timing:
+            timed_nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+        else:
+            nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+
         print("nearest neighbours of",point,":")
         print_neighbours(candidates)
 
         #for multiple points
         cloud2 = [[3, 6],[3, 7],[1, 9]]
-        predictions = batch_knn(cloud,cloud2,labelDic,2)
+        if timing:
+            predictions = timed_batch_knn(cloud,cloud2,labelDic,2)
+        else:
+            predictions = batch_knn(cloud,cloud2,labelDic,2)
         print(predictions)
 
     if iris:
         """
         we test the performance of our method using data from the iris dataset and plots the results
         """
+        print("\n\n"+100*"="+"\nIRIS\n\n")
         pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris()
 
         pointsDictTrain = to_dict(pointsTrain,targetTrain)
@@ -223,14 +270,13 @@ def main():
         we test the performance of our algorithm using the leaf dataset and k-fold cross validation, which is in the train.csv file
         we plot the results of the CV. The leaf dataset has a high dimensionality
         """
+        print("\n\n"+100*"="+"\nleaf\n\n")
         x,y = load_dataset_leaf()
         dic = to_dict(x,y)
 
         kList = [1,2,5,10,20]
         cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)
         cv_plotter(kList,cvResultTest,cvResultTrain)
-
-
 
 if __name__=="__main__":
     main()
