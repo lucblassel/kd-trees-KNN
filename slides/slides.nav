@@ -24,35 +24,37 @@
 \headcommand {\beamer@framepages {9}{9}}
 \headcommand {\slideentry {2}{0}{2}{10/10}{}{0}}
 \headcommand {\beamer@framepages {10}{10}}
-\headcommand {\slideentry {2}{0}{3}{11/11}{}{0}}
+\headcommand {\beamer@subsectionpages {9}{10}}
+\headcommand {\beamer@subsectionentry {0}{2}{1}{11}{approximate k-NN}}
+\headcommand {\slideentry {2}{1}{1}{11/11}{approximate k-NN}{0}}
 \headcommand {\beamer@framepages {11}{11}}
-\headcommand {\beamer@subsectionpages {9}{11}}
-\headcommand {\beamer@subsectionentry {0}{2}{1}{12}{Exact knn}}
-\headcommand {\slideentry {2}{1}{1}{12/12}{Exact knn}{0}}
+\headcommand {\beamer@subsectionpages {11}{11}}
+\headcommand {\beamer@subsectionentry {0}{2}{2}{12}{Exact knn}}
+\headcommand {\slideentry {2}{2}{1}{12/12}{Exact knn}{0}}
 \headcommand {\beamer@framepages {12}{12}}
-\headcommand {\slideentry {2}{1}{2}{13/13}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{2}{13/13}{Exact knn}{0}}
 \headcommand {\beamer@framepages {13}{13}}
-\headcommand {\slideentry {2}{1}{3}{14/14}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{3}{14/14}{Exact knn}{0}}
 \headcommand {\beamer@framepages {14}{14}}
-\headcommand {\slideentry {2}{1}{4}{15/15}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{4}{15/15}{Exact knn}{0}}
 \headcommand {\beamer@framepages {15}{15}}
-\headcommand {\slideentry {2}{1}{5}{16/16}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{5}{16/16}{Exact knn}{0}}
 \headcommand {\beamer@framepages {16}{16}}
-\headcommand {\slideentry {2}{1}{6}{17/29}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{6}{17/29}{Exact knn}{0}}
 \headcommand {\beamer@framepages {17}{29}}
-\headcommand {\slideentry {2}{1}{7}{30/30}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{7}{30/30}{Exact knn}{0}}
 \headcommand {\beamer@framepages {30}{30}}
-\headcommand {\slideentry {2}{1}{8}{31/31}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{8}{31/31}{Exact knn}{0}}
 \headcommand {\beamer@framepages {31}{31}}
-\headcommand {\slideentry {2}{1}{9}{32/32}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{9}{32/32}{Exact knn}{0}}
 \headcommand {\beamer@framepages {32}{32}}
-\headcommand {\slideentry {2}{1}{10}{33/33}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{10}{33/33}{Exact knn}{0}}
 \headcommand {\beamer@framepages {33}{33}}
-\headcommand {\slideentry {2}{1}{11}{34/34}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{11}{34/34}{Exact knn}{0}}
 \headcommand {\beamer@framepages {34}{34}}
-\headcommand {\slideentry {2}{1}{12}{35/35}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{12}{35/35}{Exact knn}{0}}
 \headcommand {\beamer@framepages {35}{35}}
-\headcommand {\slideentry {2}{1}{13}{36/36}{Exact knn}{0}}
+\headcommand {\slideentry {2}{2}{13}{36/36}{Exact knn}{0}}
 \headcommand {\beamer@framepages {36}{36}}
 \headcommand {\beamer@sectionpages {9}{36}}
 \headcommand {\beamer@subsectionpages {12}{36}}

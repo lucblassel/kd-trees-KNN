@@ -19,6 +19,7 @@
 
 \setbeamertemplate{itemize subitem}[square]
 \setbeamertemplate{itemize subsubitem}[circle]
+\setbeamertemplate{footline}[frame number]
 
 \title{Classification of points in a euclidean space}
 \author{Luc Blassel, Romain Gautron}
@@ -148,11 +149,6 @@ Given a space dimension $d$, research costs for one unknown point (assuming $k \
 	\item $o(nd)$ for the whole data set
 \end{itemize}
 
-\begin{itemize}
-	\item if $d \ll n$ search time complexity is $o(n)$
-	\item else $\Omega(n)$ and $o(d^2)$
-\end{itemize}
-
 Space complexity is $o(dn)$
 \end{frame}
 %
@@ -192,7 +188,8 @@ $o(kd + \frac{nd}{2^k})\approx o(dlog(n))$
 
 \end{frame}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+\subsection{approximate k-NN}
+
 \begin{frame}{KD trees V1}
 \begin{figure}
 	\centering
@@ -200,7 +197,7 @@ $o(kd + \frac{nd}{2^k})\approx o(dlog(n))$
 	\caption{KD trees V1 (copyright V. Lavrenko)}
 	\label{fig:lsh}
 \end{figure}
-$o(klog(n))$
+$o(log(n)+kd)$
 \end{frame}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,7 +205,7 @@ $o(klog(n))$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{KD trees V2}
-\Large{\textrightarrow KDtrees with exacts NNs : our work !}
+\Large{\textrightarrow KDtrees with exact NNs : our work !}
 \end{frame}
 
 \begin{frame}[c]{A simple example}
@@ -264,7 +261,7 @@ $o(klog(n))$
   \includegraphics[width=.7\textwidth]{figures/Base.png}
 \end{frame}
 \begin{frame}{How do we partition the space?}
-  \centering
+  \centering4
     \only<1>{\includegraphics[width=.7\textwidth]{figures/split1.png}}
     \only<2>{\includegraphics[width=.7\textwidth]{figures/split2.png}}
     \only<3>{\includegraphics[width=.7\textwidth]{figures/split3.png}}
