@@ -15,11 +15,18 @@
 \usepackage{xmpmulti}
 \usepackage{animate}
 
+% \usepackage[backend=biber]{biblatex}
+\usepackage{natbib}
+
+% \setbeamertemplate{bibliography item}{}
+
 \usetheme{Antibes}
 
 \setbeamertemplate{itemize subitem}[square]
 \setbeamertemplate{itemize subsubitem}[circle]
 \setbeamertemplate{footline}[frame number]
+
+\let\Tiny\tiny
 
 \title{Classification of points in a euclidean space}
 \author{Luc Blassel, Romain Gautron}
@@ -145,11 +152,11 @@ Given an unknown point $X$ :
 Given a space dimension $d$, research costs for one unknown point (assuming $k \ll n$) :
 
 \begin{itemize}
-	\item $o(d)$ per known point
-	\item $o(nd)$ for the whole data set
+	\item $O(d)$ per known point
+	\item $O(nd)$ for the whole data set
 \end{itemize}
 
-Space complexity is $o(dn)$
+Space complexity is $O(dn)$
 \end{frame}
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,7 +190,7 @@ The region where falls the new point gives the candidates
 \\
 Repeat it - gather candidates - compute distances
 
-$o(kd + \frac{nd}{2^k})\approx o(dlog(n))$
+$O(kd + \frac{nd}{2^k})\approx O(dlog(n))$
 
 
 \end{frame}
@@ -197,7 +204,7 @@ $o(kd + \frac{nd}{2^k})\approx o(dlog(n))$
 	\caption{KD trees V1 (copyright V. Lavrenko)}
 	\label{fig:lsh}
 \end{figure}
-$o(log(n)+kd)$
+$O(log(n)+kd)$
 \end{frame}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -293,8 +300,8 @@ $o(log(n)+kd)$
          &= nlog(n)+nlog\left(\frac{n}{2}\right)+4T\left(\frac{n}{4}\right)\\
          &= nlog(n)+nlog\left(\frac{n}{2}\right)+nlog\left(\frac{n}{4}\right)+\cdots+nlog\left(\frac{n}{2^{log(n)}}\right)\\
          &= n\sum^{log(n)}_{i=0}log\left(\frac{n}{2^i}\right)\\
-         &= o\left(n\sum^{log(n)}_{i=0}log(n)\right)\\
-         &= o(nlog^2(n))
+         &= O\left(n\sum^{log(n)}_{i=0}log(n)\right)\\
+         &= O(nlog^2(n))
   \end{align*}
 \end{frame}
 
@@ -305,7 +312,7 @@ $o(log(n)+kd)$
          &= n^2 +2\left(\left(\frac{n}{2}\right)^2+2T\left(\frac{n}{4}\right)\right)\\
          &= \sum^{log(n)}_{i=0}\frac{n^2}{2^i}\\
          &= n^3(2-2^{-log(n)})\\
-         &= o(n^3)
+         &= O(n^3)
   \end{align*}
 \end{frame}
 %
@@ -315,20 +322,20 @@ $o(log(n)+kd)$
   \begin{itemize}
   \item For the nearest neighbour search:
   \begin{itemize}
-    \item best: $T(n)=o(log(n)d)$
-    \item worst: $T(n)=o(nd)$ \emph{$\equiv$ depth-first traversal}
+    \item best: $T(n)=O(log(n)d)$
+    \item worst: $T(n)=O(nd)$ \emph{$\equiv$ depth-first traversal}
   \end{itemize}
   \item For k-nearest neighbours of $p$ points:
   \begin{itemize}
     \item best:
     \begin{itemize}
-      \item if $pd>nlog(n) \Rightarrow T(n) = o(pdlog(n))$
-      \item otherwise $T(n) = o(nlog^2(n))$
+      \item if $pd>nlog(n) \Rightarrow T(n) = O(pdlog(n))$
+      \item otherwise $T(n) = O(nlog^2(n))$
     \end{itemize}
     \item worst:
     \begin{itemize}
-      \item if $pd>n^2 \Rightarrow T(n)=o(pdn)$ (very unlikely)
-      \item otherwise $T(n)=o(n^3)$
+      \item if $pd>n^2 \Rightarrow T(n)=O(pdn)$ (very unlikely)
+      \item otherwise $T(n)=O(n^3)$
     \end{itemize}
   \end{itemize}
 \end{itemize}
@@ -368,4 +375,13 @@ $k$-fold cross validation does not increase complexity unless the number of fold
 \end{itemize}
 \end{frame}
 
+\begingroup
+\tiny
+\begin{frame}[allowframebreaks]{sources}
+  \nocite{*}
+
+  \bibliographystyle{plain}
+  \bibliography{comp.bib}
+\end{frame}
+\endgroup
 \end{document}

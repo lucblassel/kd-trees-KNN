@@ -15,6 +15,8 @@
 \usepackage{float}
 \usepackage{hyperref}
 
+\usepackage{natbib}
+
 \usepackage[left=2cm,right=2cm,top=1.5cm,bottom=1.5cm]{geometry}
 
 \title{Algorithmic Complexity project:\\ Classification of $n$ points in $d$-sized Euclidean space}
@@ -358,7 +360,11 @@ node.visited $\leftarrow$ True\;
 
 \subsection{Be able to use categorical data}
 \paragraph{}In various classification tasks, points are not necessarily in euclidean space, in some cases the points can have categorical variables. Even though it is not conventional to use k-NN with categorical data it could be interesting to be able to encode categorical values in numerical values and integrate them in the distance calculation. Or ignore the categorical values and calculate the distance with only the numerical values. In any case it would be good for this program to at least run without errors when presented with categorical data.
-\pagebreak
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{comp.bib}
+
 \appendix
 \section{code}
 \paragraph{}The code is available on \href{https://gitlab.com/zlanderous/complexite_projet}{this repository}.

@@ -1,0 +1,67 @@
+\begin{thebibliography}{10}
+
+\bibitem{cover1967nearest}
+Thomas Cover and Peter Hart.
+\newblock Nearest neighbor pattern classification.
+\newblock {\em IEEE transactions on information theory}, 13(1):21--27, 1967.
+
+\bibitem{gopal}
+Gopal Das.
+\newblock k-d tree and nearest neighbor search.
+\newblock
+  \url{https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/},
+  May 24, 2017.
+
+\bibitem{sandipan}
+Sandipan Dey.
+\newblock Implementing kd-tree for fast range-search, nearest-neighbor search
+  and k-nearest-neighbor search algorithms in 2d in java and python.
+\newblock
+  \url{https://www.datasciencecentral.com/profiles/blogs/implementing-kd-tree-for-fast-range-search-nearest-neighbor},
+  May 24, 2017.
+
+\bibitem{VL}
+Victor Lavrenko.
+\newblock Iaml: Nearest neighbours.
+\newblock
+  \url{http://www.inf.ed.ac.uk/teaching/courses/iaml/2011/slides/knn.pdf},
+  2011.
+
+\bibitem{stackoverflow}
+PyChen.
+\newblock How to calculate the average time complexity of the nearest neighbor
+  search using kd-tree?
+\newblock
+  \url{https://stackoverflow.com/questions/22577032/how-to-calculate-the-average-time-complexity-of-the-nearest-neighbor-search-usin},
+  March 22, 2014.
+
+\bibitem{rivest1990introduction}
+Ronald~L Rivest and Charles~E Leiserson.
+\newblock {\em Introduction to algorithms}.
+\newblock McGraw-Hill, Inc., 1990.
+
+\bibitem{saporta2006probabilites}
+Gilbert Saporta.
+\newblock {\em Probabilit{\'e}s, analyse des donn{\'e}es et statistique}.
+\newblock Editions Technip, 2006.
+
+\bibitem{standford}
+Michael Sharma, Aneesh \&~Wand.
+\newblock Approximate nearest neighbors search in high dimensions and
+  locality-sensitive hashing.
+\newblock
+  \url{https://graphics.stanford.edu/courses/cs468-06-fall/Slides/aneesh-michael.pdf},
+  March 22, 2014.
+
+\bibitem{slaney2008locality}
+Malcolm Slaney and Michael Casey.
+\newblock Locality-sensitive hashing for finding nearest neighbors [lecture
+  notes].
+\newblock {\em IEEE Signal processing magazine}, 25(2):128--131, 2008.
+
+\bibitem{MIT}
+Unknown.
+\newblock Mit 6.854 spring 2016 lecture 6: Nearest neighbor search and lsh.
+\newblock \url{https://www.youtube.com/watch?v=vAboxtLEeH0}, 2017.
+
+\end{thebibliography}
