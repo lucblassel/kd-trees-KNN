@@ -36,7 +36,7 @@ def test_to_train_indexes(originalSetLen,testIndexes):
     trainIndexes = list(set(allIndexes)-set(testIndexes))
     return trainIndexes
 
-def cv(knownPoints,testPercentage,kFold,rangeKNn,labelDic,reps):
+def cv(knownPoints,testPercentage,kFold,rangeKNn,labelDic,reps,naive=False):
     accResultsCv=[]
     originalSetLen = len(knownPoints)
     testIndexes = train_test_splitter(originalSetLen,testPercentage)
@@ -62,7 +62,10 @@ def cv(knownPoints,testPercentage,kFold,rangeKNn,labelDic,reps):
                 testCvLabels = []
                 for testCvPoint in testCvSet:
                     testCvLabels.append(labelDic[tuple(testCvPoint)])
-                predictionsCv = batch_knn(trainCvSet,testCvSet,labelDic,kNn)
+                    if not naive:
+                        predictionsCv = batch_knn(trainCvSet,testCvSet,labelDic,kNn)
+                    else:
+                        predictionsCv = naive_knn(trainCvSet,testCvSet,labelDic,kNn)
                 accCv = accuracy(testCvLabels,predictionsCv)
                 accResultsCv.append(accCv)
                 d += 1

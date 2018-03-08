@@ -105,6 +105,11 @@ def calculate_dist(point,node):
     summed = np.dot(vect,vect)
     return math.sqrt(summed)
 
+def naive_dist(point1,point2):
+    vect = np.array(point1)-np.array(point2)
+    summed = np.dot(vect,vect)
+    return math.sqrt(summed)
+
 def nearest_neighbours(point,node,candidateList,distMin=math.inf,k=1,verbose=False):
 
     if node == None:
@@ -169,6 +174,37 @@ def batch_knn(knownPoints,unknownPoints,labelDic,k):
 def timed_batch_knn(*args,**kwargs):
     return batch_knn(*args,**kwargs)
 
+def naive_knn(knownPoints,unknownPoints,labelDic,k):
+    predictions = []
+    for point in unknownPoints:
+        distMin = math.inf
+        candidates = []
+        for known in knownPoints:
+            dist = naive_dist(point,known)
+            if dist<distMin:
+                candidates.append((dist,known))
+                candidates.sort(key=lambda point: point[0])
+                if len(candidates)>k:
+                    candidates.pop()
+        candidateslabelsDic = {}
+        for node in candidates:
+            candidate = tuple(node[1])
+            if labelDic[candidate] in candidateslabelsDic:
+                candidateslabelsDic[labelDic[candidate]] += 1
+            else:
+                candidateslabelsDic[labelDic[candidate]] = 1
+        predictedLabel = max(candidateslabelsDic, key=candidateslabelsDic.get) #assuming if equality of count each key has a random chance to be the first of this result
+        predictions.append(predictedLabel)
+    return predictions
+
+@timeit
+def timed_naive_knn(*args,**kwargs):
+    return naive_knn(*args,**kwargs)
+
+@timeit
+def timed_cv(*args,**kwargs):
+    return cv(*args,**kwargs)
+
 def main():
 
     """
@@ -177,10 +213,10 @@ def main():
     randomCloud = False
     example = False
     iris = False
-    irisCv = True
+    irisCv = False
     leaf = True
 
-    timing = True #if true then functions are timed
+    timing = False #if true then functions are timed
 
     if randomCloud:
         """
@@ -234,6 +270,7 @@ def main():
         else:
             nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
 
+
         print("nearest neighbours of",point,":")
         print_neighbours(candidates)
 
@@ -243,6 +280,7 @@ def main():
             predictions = timed_batch_knn(cloud,cloud2,labelDic,2)
         else:
             predictions = batch_knn(cloud,cloud2,labelDic,2)
+            print('naive',naive_knn(cloud,cloud2,labelDic,2))
         print(predictions)
 
     if iris:
@@ -255,9 +293,11 @@ def main():
         pointsDictTrain = to_dict(pointsTrain,targetTrain)
         pointsDictTest = to_dict(pointsTest,targetTest)
         dicIris = {**pointsDictTrain, **pointsDictTest}
-        predictions = batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
-
-        print_preds(predictions,pointsDictTest)
+        predictions1 = timed_batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
+        predictions2 = timed_naive_knn(pointsTrain,pointsTest,pointsDictTrain,2)
+        print_preds(predictions1,pointsDictTest)
+        print('naive')
+        print_preds(predictions2,pointsDictTest)
         plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
 
         if irisCv:
@@ -275,8 +315,11 @@ def main():
         x,y = load_dataset_leaf()
         dic = to_dict(x,y)
 
+        predictions1 = timed_batch_knn(x[:-20],x[-20:],dic,1)
+        print_preds(predictions1,dic)
+
         kList = [1,2,5,10,20]
-        cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)
+        cvResultTest,cvResultTrain=timed_cv(x,.1,10,kList,dic,2)
         cv_plotter(kList,cvResultTest,cvResultTrain)
 
 if __name__=="__main__":
