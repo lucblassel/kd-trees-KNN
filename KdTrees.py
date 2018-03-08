@@ -272,17 +272,8 @@ def main():
         we plot the results of the CV. The leaf dataset has a high dimensionality
         """
         print("\n\n"+100*"="+"\nleaf\n\n")
-        x,y,xToPlot = load_dataset_leaf()
+        x,y = load_dataset_leaf()
         dic = to_dict(x,y)
-        xTrain = x[:-50]
-        yTrain = y[:-50]
-        xTest = x[-50:]
-        yTest = y[-50:]
-        xTrainPlot = xToPlot[:-50]
-        xTestPlot = xToPlot[-50:]
-
-        predictions = batch_knn(xTrain,xTest,dic,3)
-        plot_points(xTrainPlot,yTrain,xTestPlot,predictions)
 
         kList = [1,2,5,10,20]
         cvResultTest,cvResultTrain=cv(x,.1,10,kList,dic,2)

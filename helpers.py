@@ -86,7 +86,7 @@ def load_dataset_leaf():
     exclude = ['species']
     x = data.loc[:,data.columns.difference(exclude)]
     y = data[['species']]
-    return x.as_matrix().tolist(),[i[0] for i in y.values],x.as_matrix()[:,[0,2]].tolist()
+    return x.as_matrix().tolist(),[i[0] for i in y.values]
 
 def load_dataset_example():
     #example set from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/

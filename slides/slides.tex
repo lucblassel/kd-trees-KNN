@@ -10,9 +10,12 @@
 \usepackage{tikz-qtree}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{textcomp}
 
 \usepackage{xmpmulti}
 \usepackage{animate}
+
+\usetheme{Antibes}
 
 \setbeamertemplate{itemize subitem}[square]
 \setbeamertemplate{itemize subsubitem}[circle]
@@ -23,8 +26,189 @@
 \begin{document}
 \maketitle
 
-\begin{frame}{The problem}
+\begin{frame}{Our problem}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\textwidth]{figures/irisClass.png}
+		\caption{Classification problem in euclidean space}
+		\label{fig:iris}
+	\end{figure}
+\end{frame}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{Our problem}
+	Let $S$ be a set of $I$ points of $\mathbf{R^d}$.
+
+	\medskip
+
+	Each element of $S$ has a known label $y_i$ in $\{-1,1\}$.
+
+	\medskip
+
+	Let $U$ be a set of $\mathbf{R^d}$ points  for which we don't know the labels.
+
+	\medskip
+
+	We suppose that $S$ and $U$ come from the same ensemble.
+
+	\medskip
+
+	We want to assign labels from $\{-1,1\}$ to the points of $U$.
+
+\end{frame}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Our problem}
+A lot of ways to solve it :
+
+\begin{itemize}
+	\item generative approach
+%
+	\textrightarrow learning the distribution of individual classes
+
+		\begin{itemize}
+			\item Naives Bayes
+			\item Logistic regression
+			\item ...
+		\end{itemize}
+  %
+	\item discriminative approach
+  %
+	\textrightarrow learning the boundaries between classes
+
+		\begin{itemize}
+			\item KNN
+			\item Random Forest
+			\item LDA
+			\item NNets
+			\item ...
+		\end{itemize}
+\end{itemize}
+\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{The KNN problem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Our framework}
+Discriminative approach : KNN
+\begin{itemize}
+	\item simple algorithm
+	\item well performing
+	\item non linear
+\end{itemize}
+
+\Large{\textrightarrow we will deal with the multiclass case}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The KNN algorithm}
+\begin{block}{KNN principle (1)}
+In order to assign a label to an unknown point :
+\begin{enumerate}
+	\item find the k-nearest neighbours according to a distance
+	\item take the majority of the corresponding labels ; if equality pick one randomly
+\end{enumerate}
+\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{KNN principle (2)}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{figures/irisClass2_1.png}
+	\caption{KNN example}
+	\label{fig:iris2}
+\end{figure}
+\end{frame}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Naive KNN approach}
+Given an unknown point $X$ :
+\begin{enumerate}
+	\item compute all the distances :
+
+	for $s \in S, i \in I :\Vert s_i - X\Vert$
+
+	\item sort the distances and select the k-least
+
+	\item take the majority of the corresponding labels ; if equality pick one randomly
+\end{enumerate}
+
+Given a space dimension $d$, research costs for one unknown point (assuming $k \ll n$) :
+
+\begin{itemize}
+	\item $o(d)$ per known point
+	\item $o(nd)$ for the whole data set
+\end{itemize}
+
+\begin{itemize}
+	\item if $d \ll n$ search time complexity is $o(n)$
+	\item else $\Omega(n)$ and $o(d^2)$
+\end{itemize}
+
+Space complexity is $o(dn)$
+\end{frame}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{KNN improvements}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{How to improve naive knn ?}
+\begin{itemize}
+	\item approximate knn
+	\item exact knn
+\end{itemize}
+
+\textrightarrow based on pre-partionning the space
+\end{frame}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Approximate knn}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{LSH approach}
+Random hyperplan \textrightarrow hash function
+\begin{figure}
+	\centering
+	\includegraphics[width=.45\textwidth]{figures/lsh.png}
+	\includegraphics[width=.45\textwidth]{figures/lsh2.png}
+	\caption{LSH}
+	\label{fig:lsh2}
+\end{figure}
+
+The region where falls the new point gives the candidates
+\\
+Repeat it - gather candidates - compute distances
+
+$o(kd + \frac{nd}{2^k})\approx o(dlog(n))$
+
+
+\end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{frame}{KD trees V1}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{figures/lavrenko.png}
+	\caption{KD trees V1 (copyright V. Lavrenko)}
+	\label{fig:lsh}
+\end{figure}
+$o(klog(n))$
+\end{frame}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Exact knn}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{KD trees V2}
+\Large{\textrightarrow KDtrees with exacts NNs : our work !}
 \end{frame}
 
 \begin{frame}[c]{A simple example}
@@ -36,29 +220,11 @@
   \end{align*}
   We want to assign a color to the following point: $(4,8)$\
 \end{frame}
-
-\begin{frame}{What is being used today?}
-
-\end{frame}
-
-\begin{frame}{Knn}
-
-\end{frame}
-
-\begin{frame}{Knn}
-
-\end{frame}
-
+%
 \begin{frame}{How to opitimze k-nn search}
   We use a data structure known as a k-d tree.
-  \begin{itemize}
-    \item
-  \end{itemize}
 \end{frame}
-
-\begin{frame}
-
-\end{frame}
+%
 \begin{frame}[shrink=22]{building the k-d tree}
   \begin{tikzpicture}[draw,circle,fill=none]
     \node[draw,fill=red] (0) at (0,0) {$(5,4)$};
@@ -94,15 +260,32 @@
 \end{frame}
 
 \begin{frame}{How do we partition the space?}
-  \begin{figure}
-    \includegraphics[width=\linewidth]{figures/splitFin.png}
-    \caption{To animate}
-  \end{figure}
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/Base.png}
 \end{frame}
-
+\begin{frame}{How do we partition the space?}
+  \centering
+    \only<1>{\includegraphics[width=.7\textwidth]{figures/split1.png}}
+    \only<2>{\includegraphics[width=.7\textwidth]{figures/split2.png}}
+    \only<3>{\includegraphics[width=.7\textwidth]{figures/split3.png}}
+    \only<4>{\includegraphics[width=.7\textwidth]{figures/split4.png}}
+    \only<5>{\includegraphics[width=.7\textwidth]{figures/split5.png}}
+    \only<6>{\includegraphics[width=.7\textwidth]{figures/split6.png}}
+    \only<7>{\includegraphics[width=.7\textwidth]{figures/split7.png}}
+    \only<8>{\includegraphics[width=.7\textwidth]{figures/split8.png}}
+    \only<9>{\includegraphics[width=.7\textwidth]{figures/split9.png}}
+    \only<10>{\includegraphics[width=.7\textwidth]{figures/split10.png}}
+    \only<11>{\includegraphics[width=.7\textwidth]{figures/split11.png}}
+    \only<12>{\includegraphics[width=.7\textwidth]{figures/split12.png}}
+    \only<13>{\includegraphics[width=.7\textwidth]{figures/splitFin.png}}
+\end{frame}
+%
 \begin{frame}{how do we find the k nearest neighbours?}
-        \animategraphics[loop,controls,width=\linewidth]{10}{gif/cirle-}{0}{95}
-
+  \begin{figure}
+  	\centering
+  	\includegraphics[width=.45\textwidth]{figures/splitFin.png}
+  	\includegraphics[width=.45\textwidth]{figures/tree.png}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{What is the time complexity?}
@@ -128,26 +311,26 @@
          &= o(n^3)
   \end{align*}
 \end{frame}
-
+%
 \begin{frame}{what is the time complexity}
   time complexity of our full program:
   \smallskip
   \begin{itemize}
   \item For the nearest neighbour search:
   \begin{itemize}
-    \item best: $T(n)=o(log(n))$
-    \item worst: $T(n)=o(n)$ \emph{$\equiv$ depth-first traversal}
+    \item best: $T(n)=o(log(n)d)$
+    \item worst: $T(n)=o(nd)$ \emph{$\equiv$ depth-first traversal}
   \end{itemize}
   \item For k-nearest neighbours of $p$ points:
   \begin{itemize}
     \item best:
     \begin{itemize}
-      \item if $p>nlog(n) \Rightarrow T(n) = o(plog(n))$
+      \item if $pd>nlog(n) \Rightarrow T(n) = o(pdlog(n))$
       \item otherwise $T(n) = o(nlog^2(n))$
     \end{itemize}
     \item worst:
     \begin{itemize}
-      \item if $p>n^2 \Rightarrow T(n)=o(pn)$ (very unlikely)
+      \item if $pd>n^2 \Rightarrow T(n)=o(pdn)$ (very unlikely)
       \item otherwise $T(n)=o(n^3)$
     \end{itemize}
   \end{itemize}
@@ -156,13 +339,36 @@
 Most of the complexity is due to tree creation.\\\smallskip
 $k$-fold cross validation does not increase complexity unless the number of folds is very high.
 \end{frame}
-
-\begin{frame}{how does our algorithm perform in a real scenario}
-  Using the Iris dataset:
+%
+\begin{frame}{How does our program perform?}
   \begin{figure}
-    \includegraphics{figures/iris3.png}
-    \caption{round points: known, crosses: classified points
+    \includegraphics[width=.7\textwidth]{figures/iris3.png}
+    \caption{classification of points in the iris dataset}
   \end{figure}
+\end{frame}
+
+\begin{frame}{How does our program perform?}
+  \begin{figure}
+    \includegraphics[width=.7\textwidth]{figures/iris3Cv2.png}
+    \caption{Cross validation results on iris}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{does it work for bigger spaces?}
+\begin{figure}
+  \includegraphics[width=.55\textwidth]{figures/leafCv.png}
+  \caption{CV results on leaf dataset \emph{(d=192, 99 classes, n=990)}}
+\end{figure}
+\end{frame}
+
+\section{Improvements, and future works}
+
+\begin{frame}
+\begin{itemize}
+  \item Implement approximative in CV then apply exact Knn with optimal k
+  \item be able to handle categorical data
+  \item implement faster median selection algorithm (for faster tree creation)
+\end{itemize}
 \end{frame}
 
 \end{document}
