@@ -110,6 +110,14 @@ venv.bak/
 *.out
 *.log
 *.synctex.gz
+*.tex
+*.bib
+*.bbl
+*.blg
+*.nav
+*.xml
+*.snm
+*.toc
 
 #beamer
 *.nav
