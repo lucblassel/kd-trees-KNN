@@ -1,6 +1,0 @@
-\select@language {french}
-\beamer@sectionintoc {1}{The KNN problem}{5}{0}{1}
-\beamer@sectionintoc {2}{KNN improvements}{9}{0}{2}
-\beamer@subsectionintoc {2}{1}{approximate k-NN}{11}{0}{2}
-\beamer@subsectionintoc {2}{2}{Exact knn}{12}{0}{2}
-\beamer@sectionintoc {3}{Improvements, and future works}{37}{0}{3}
