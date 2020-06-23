@@ -2,13 +2,23 @@
 KNN implementation using KD-trees
 authors: Luc Blassel, Romain Gautron
 """
-from projet_sort import *
-from helpers import *
-from plotter import *
-from cv import *
+from projet_sort import quicksort
+from helpers import (
+    to_dict,
+    load_dataset_leaf,
+    load_dataset_iris,
+    load_dataset_example,
+    gen_cloud,
+    print_preds,
+    print_neighbours,
+    timeit,
+)
+from plotter import plot_points, cv_plotter
+from cv import cv
 
 import math
-import gc
+
+# import gc
 
 import numpy as np
 
@@ -18,8 +28,10 @@ class Node:
     Kd-tree Node
     """
 
-    def __init__(self,value=None,parent=None,left=None,right=None,axis=None,visited=False):
-        self.value = value #coordinates of point
+    def __init__(
+        self, value=None, parent=None, left=None, right=None, axis=None, visited=False
+    ):
+        self.value = value  # coordinates of point
         self.parent = parent
         self.left = left
         self.right = right
@@ -27,10 +39,10 @@ class Node:
         self.visited = visited
 
     def has_children(self):
-        return False if self.right == None and self.left == None else True
+        return False if self.right is None and self.left is None else True
 
     def set_visited(self):
-        self.visited=True
+        self.visited = True
 
     def __str__(self, depth=0):
         """
@@ -40,14 +52,14 @@ class Node:
         ret = ""
 
         # Print right branch
-        if self.right != None:
+        if self.right is not None:
             ret += self.right.__str__(depth + 1)
 
         # Print own value
-        ret += "\n" + ("    "*depth*dim) + str(self.value)
+        ret += "\n" + ("    " * depth * dim) + str(self.value)
 
         # Print left branch
-        if self.left != None:
+        if self.left is not None:
             ret += self.left.__str__(depth + 1)
 
         return ret
@@ -58,106 +70,121 @@ class Node:
         """
         self.visited = False
 
-        if self.right:
+        if self.right is not None:
             self.right.reset()
-        if self.left:
+        if self.left is not None:
             self.left.reset()
 
-def create_tree(pointList,dimensions,depth=0,parent=None):
+
+def create_tree(pointList, dimensions, depth=0, parent=None):
     """
-    creates Kd-tree, pointsList is the list of points. dimensions is the dimension of the euclidean space in which these points are present (or number od fimensions along which you want to split the data). depth is the starting tree-depth
+    creates Kd-tree, pointsList is the list of points. dimensions is the dimension of 
+    the euclidean space in which these points are present (or number od fimensions 
+    along which you want to split the data). depth is the starting tree-depth
     """
 
     if not pointList:
         return
 
     if not dimensions:
-        dimensions = len(pointList[0]) #selects all dimensions to split along
+        dimensions = len(pointList[0])  # selects all dimensions to split along
 
-    axis = depth%dimensions #switch dimensions at each split
+    axis = depth % dimensions  # switch dimensions at each split
 
     # pointList.sort(key=lambda point: point[axis])
     # shellSort(pointList,axis)
-    quicksort(pointList,0,len(pointList)-1,axis)
+    quicksort(pointList, 0, len(pointList) - 1, axis)
 
-    med = len(pointList)//2
+    med = len(pointList) // 2
     root = Node(value=pointList[med], parent=parent, axis=axis, visited=False)
-    root.left = create_tree(pointList=pointList[:med],dimensions=dimensions,depth=depth+1, parent=root)
-    root.right = create_tree(pointList=pointList[med+1:],dimensions=dimensions,depth=depth+1, parent=root)
+    root.left = create_tree(
+        pointList=pointList[:med], dimensions=dimensions, depth=depth + 1, parent=root
+    )
+    root.right = create_tree(
+        pointList=pointList[med + 1 :],
+        dimensions=dimensions,
+        depth=depth + 1,
+        parent=root,
+    )
 
     return root
 
+
 @timeit
-def timed_create_tree(*args,**kwargs):
+def timed_create_tree(*args, **kwargs):
     """
     times create_tree function
     """
-    return create_tree(*args,**kwargs)
+    return create_tree(*args, **kwargs)
 
-def calculate_dist(point,node):
+
+def calculate_dist(point, node):
     """
     returns euclidean distance between 2 points
     """
 
-    if len(point)!=len(node.value):
+    if len(point) != len(node.value):
         return
-    vect = np.array(point)-np.array(node.value)
-    summed = np.dot(vect,vect)
+    vect = np.array(point) - np.array(node.value)
+    summed = np.dot(vect, vect)
     return math.sqrt(summed)
 
-def naive_dist(point1,point2):
-    vect = np.array(point1)-np.array(point2)
-    summed = np.dot(vect,vect)
+
+def naive_dist(point1, point2):
+    vect = np.array(point1) - np.array(point2)
+    summed = np.dot(vect, vect)
     return math.sqrt(summed)
 
-def nearest_neighbours(point,node,candidateList,distMin=math.inf,k=1,verbose=False):
 
-    if node == None:
-        return
-    elif node.visited:
+def nearest_neighbours(
+    point, node, candidateList, distMin=math.inf, k=1, verbose=False
+):
+
+    if node is None or node.visited:
         return
 
-    dist = calculate_dist(point,node)
+    dist = calculate_dist(point, node)
 
     if dist < distMin:
-        candidateList.append([dist,node])
+        candidateList.append([dist, node])
         candidateList.sort(key=lambda point: point[0])
         distMin = candidateList[-1][0]
 
-
-    if len(candidateList)>k:
+    if len(candidateList) > k:
         if verbose:
             print("removing candidates")
-        candidateList.pop() #removes last one (biggest distance)
+        candidateList.pop()  # removes last one (biggest distance)
 
-    if  point[node.axis] < node.value[node.axis]:
-        nearest_neighbours(point, node.left, candidateList,distMin,k)
+    if point[node.axis] < node.value[node.axis]:
+        nearest_neighbours(point, node.left, candidateList, distMin, k)
         if node.value[node.axis] - point[node.axis] <= distMin:
-            nearest_neighbours(point, node.right, candidateList,distMin,k)
+            nearest_neighbours(point, node.right, candidateList, distMin, k)
         else:
             if verbose:
-                print("pruned right branch of "+str(node.value))
+                print("pruned right branch of " + str(node.value))
     else:
-        nearest_neighbours(point, node.right, candidateList,distMin,k)
+        nearest_neighbours(point, node.right, candidateList, distMin, k)
         if point[node.axis] - node.value[node.axis] <= distMin:
-            nearest_neighbours(point, node.left, candidateList,distMin,k)
+            nearest_neighbours(point, node.left, candidateList, distMin, k)
         else:
             if verbose:
-                print("pruned left branch of "+str(node.value))
+                print("pruned left branch of " + str(node.value))
 
     node.visited = True
 
-@timeit
-def timed_nearest_neighbours(*args,**kwargs):
-    nearest_neighbours(*args,**kwargs)
 
-def batch_knn(knownPoints,unknownPoints,labelDic,k):
-    tree = create_tree(pointList=knownPoints,dimensions=len(knownPoints[0]))
+@timeit
+def timed_nearest_neighbours(*args, **kwargs):
+    nearest_neighbours(*args, **kwargs)
+
+
+def batch_knn(knownPoints, unknownPoints, labelDic, k):
+    tree = create_tree(pointList=knownPoints, dimensions=len(knownPoints[0]))
     predictions = []
     for point in unknownPoints:
         # print(point)
-        candidates =[]
-        nearest_neighbours(point=point,node=tree,candidateList=candidates,k=k)
+        candidates = []
+        nearest_neighbours(point=point, node=tree, candidateList=candidates, k=k)
         candidateslabelsDic = {}
         for node in candidates:
             candidate = tuple(node[1].value)
@@ -165,26 +192,30 @@ def batch_knn(knownPoints,unknownPoints,labelDic,k):
                 candidateslabelsDic[labelDic[candidate]] += 1
             else:
                 candidateslabelsDic[labelDic[candidate]] = 1
-        predictedLabel = max(candidateslabelsDic, key=candidateslabelsDic.get) #assuming if equality of count each key has a random chance to be the first of this result
+        predictedLabel = max(
+            candidateslabelsDic, key=candidateslabelsDic.get
+        )  # assuming if equality of count each key has a random chance to be the first of this result
         predictions.append(predictedLabel)
         tree.reset()
     return predictions
 
-@timeit
-def timed_batch_knn(*args,**kwargs):
-    return batch_knn(*args,**kwargs)
 
-def naive_knn(knownPoints,unknownPoints,labelDic,k):
+@timeit
+def timed_batch_knn(*args, **kwargs):
+    return batch_knn(*args, **kwargs)
+
+
+def naive_knn(knownPoints, unknownPoints, labelDic, k):
     predictions = []
     for point in unknownPoints:
         distMin = math.inf
         candidates = []
         for known in knownPoints:
-            dist = naive_dist(point,known)
-            if dist<distMin:
-                candidates.append((dist,known))
+            dist = naive_dist(point, known)
+            if dist < distMin:
+                candidates.append((dist, known))
                 candidates.sort(key=lambda point: point[0])
-                if len(candidates)>k:
+                if len(candidates) > k:
                     candidates.pop()
         candidateslabelsDic = {}
         for node in candidates:
@@ -193,17 +224,22 @@ def naive_knn(knownPoints,unknownPoints,labelDic,k):
                 candidateslabelsDic[labelDic[candidate]] += 1
             else:
                 candidateslabelsDic[labelDic[candidate]] = 1
-        predictedLabel = max(candidateslabelsDic, key=candidateslabelsDic.get) #assuming if equality of count each key has a random chance to be the first of this result
+        predictedLabel = max(
+            candidateslabelsDic, key=candidateslabelsDic.get
+        )  # assuming if equality of count each key has a random chance to be the first of this result
         predictions.append(predictedLabel)
     return predictions
 
-@timeit
-def timed_naive_knn(*args,**kwargs):
-    return naive_knn(*args,**kwargs)
 
 @timeit
-def timed_cv(*args,**kwargs):
-    return cv(*args,**kwargs)
+def timed_naive_knn(*args, **kwargs):
+    return naive_knn(*args, **kwargs)
+
+
+@timeit
+def timed_cv(*args, **kwargs):
+    return cv(*args, **kwargs)
+
 
 def main():
 
@@ -216,111 +252,119 @@ def main():
     irisCv = False
     leaf = True
 
-    timing = False #if true then functions are timed
+    timing = False  # if true then functions are timed
 
     if randomCloud:
-        """
-        we generate a random dataset with following properties: num points in dims dimensions, with coordinate values contained between min and max.
-        we then build a k-d tree of this dataset and print it
-        """
-        print("\n\n"+100*"="+"\nrandomCloud\n\n")
+        # we generate a random dataset with following properties: num points in dims
+        # dimensions, with coordinate values contained between min and max.
+        # we then build a k-d tree of this dataset and print it
+        print("\n\n" + 100 * "=" + "\nrandomCloud\n\n")
         num = 10000
         dims = 3
-        min = -1000
-        max = 1000
-        cloud = gen_cloud(num,dims,min,max)
+        min_ = -1000
+        max_ = 1000
+        cloud = gen_cloud(num, dims, min_, max_)
         if timing:
-            randomTree = timed_create_tree(cloud,dims)
+            randomTree = timed_create_tree(cloud, dims)
         else:
-            randomTree = create_tree(cloud,dims)
+            randomTree = create_tree(cloud, dims)
 
         if num <= 100:
             print(randomTree)
 
-        #calculate nearest neighbours of randomly generated point
-        point = gen_cloud(1,dims,min,max)[0]
+        # calculate nearest neighbours of randomly generated point
+        point = gen_cloud(1, dims, min_, max_)[0]
         candidates = []
         if timing:
-            timed_nearest_neighbours(point=point,node=randomTree,candidateList=candidates,k=3)
+            timed_nearest_neighbours(
+                point=point, node=randomTree, candidateList=candidates, k=3
+            )
         else:
-            nearest_neighbours(point=point,node=randomTree,candidateList=candidates,k=3)
+            nearest_neighbours(
+                point=point, node=randomTree, candidateList=candidates, k=3
+            )
 
         print_neighbours(candidates)
 
     if example:
-        """
-        we use the data from https://gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/ to create the trees
-        and search for k nearest neighbours for the point to classify
-        """
-        print("\n\n"+100*"="+"\nexample\n\n")
+        # we use the data from
+        # gopalcdas.com/2017/05/24/construction-of-k-d-tree-and-using-it-for-nearest-neighbour-search/
+        # to create the trees and search for k nearest neighbours for the point to classify
+        print("\n\n" + 100 * "=" + "\nexample\n\n")
         dims = 2
-        cloud,labels = load_dataset_example()
-        labelDic = to_dict(cloud,labels)
+        cloud, labels = load_dataset_example()
+        labelDic = to_dict(cloud, labels)
         if timing:
-            tree = timed_create_tree(cloud,dims)
+            tree = timed_create_tree(cloud, dims)
         else:
-            tree = create_tree(cloud,dims)
+            tree = create_tree(cloud, dims)
         print(tree)
 
         # for just one point
-        point = [4,8]
+        point = [4, 8]
         candidates = []
         if timing:
-            timed_nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+            timed_nearest_neighbours(
+                point=point, node=tree, candidateList=candidates, k=3
+            )
         else:
-            nearest_neighbours(point=point,node=tree,candidateList=candidates,k=3)
+            nearest_neighbours(point=point, node=tree, candidateList=candidates, k=3)
 
-
-        print("nearest neighbours of",point,":")
+        print("nearest neighbours of", point, ":")
         print_neighbours(candidates)
 
-        #for multiple points
-        cloud2 = [[3, 6],[3, 7],[1, 9]]
+        # for multiple points
+        cloud2 = [[3, 6], [3, 7], [1, 9]]
         if timing:
-            predictions = timed_batch_knn(cloud,cloud2,labelDic,2)
+            predictions = timed_batch_knn(cloud, cloud2, labelDic, 2)
         else:
-            predictions = batch_knn(cloud,cloud2,labelDic,2)
-            print('naive',naive_knn(cloud,cloud2,labelDic,2))
+            predictions = batch_knn(cloud, cloud2, labelDic, 2)
+            print("naive", naive_knn(cloud, cloud2, labelDic, 2))
         print(predictions)
 
     if iris:
-        """
-        we test the performance of our method using data from the iris dataset and plots the results
-        """
-        print("\n\n"+100*"="+"\nIRIS\n\n")
-        pointsTrain,targetTrain,pointsTest,targetTest,toPlotTrain,toPlotTest = load_dataset_iris(twoClasses=False)
+        # we test the performance of our method using data from the iris dataset and plots the results
+        print("\n\n" + 100 * "=" + "\nIRIS\n\n")
+        (
+            pointsTrain,
+            targetTrain,
+            pointsTest,
+            targetTest,
+            toPlotTrain,
+            toPlotTest,
+        ) = load_dataset_iris(twoClasses=False)
 
-        pointsDictTrain = to_dict(pointsTrain,targetTrain)
-        pointsDictTest = to_dict(pointsTest,targetTest)
+        pointsDictTrain = to_dict(pointsTrain, targetTrain)
+        pointsDictTest = to_dict(pointsTest, targetTest)
         dicIris = {**pointsDictTrain, **pointsDictTest}
-        predictions1 = timed_batch_knn(pointsTrain,pointsTest,pointsDictTrain,2)
-        predictions2 = timed_naive_knn(pointsTrain,pointsTest,pointsDictTrain,2)
-        print_preds(predictions1,pointsDictTest)
-        print('naive')
-        print_preds(predictions2,pointsDictTest)
-        plot_points(toPlotTrain,targetTrain,toPlotTest,predictions)
+        predictions1 = timed_batch_knn(pointsTrain, pointsTest, pointsDictTrain, 2)
+        predictions2 = timed_naive_knn(pointsTrain, pointsTest, pointsDictTrain, 2)
+        print_preds(predictions1, pointsDictTest)
+        print("naive")
+        print_preds(predictions2, pointsDictTest)
+        plot_points(toPlotTrain, targetTrain, toPlotTest, predictions)
 
         if irisCv:
-            kList = [1,2,5,10,20]
-            cvResultTest,cvResultTrain = cv(pointsTrain,.1,2,kList,dicIris,10)
-            print(cvResultTest,cvResultTrain)
-            cv_plotter(kList,cvResultTest,cvResultTrain)
+            kList = [1, 2, 5, 10, 20]
+            cvResultTest, cvResultTrain = cv(pointsTrain, 0.1, 2, kList, dicIris, 10)
+            print(cvResultTest, cvResultTrain)
+            cv_plotter(kList, cvResultTest, cvResultTrain)
 
     if leaf:
-        """
-        we test the performance of our algorithm using the leaf dataset and k-fold cross validation, which is in the train.csv file
-        we plot the results of the CV. The leaf dataset has a high dimensionality
-        """
-        print("\n\n"+100*"="+"\nleaf\n\n")
-        x,y = load_dataset_leaf()
-        dic = to_dict(x,y)
+        # we test the performance of our algorithm using the leaf dataset and k-fold
+        # cross validation, which is in the train.csv file
+        # we plot the results of the CV. The leaf dataset has a high dimensionality
+        print("\n\n" + 100 * "=" + "\nleaf\n\n")
+        x, y = load_dataset_leaf()
+        dic = to_dict(x, y)
 
-        predictions1 = timed_batch_knn(x[:-20],x[-20:],dic,1)
-        print_preds(predictions1,dic)
+        predictions1 = timed_batch_knn(x[:-20], x[-20:], dic, 1)
+        print_preds(predictions1, dic)
 
-        kList = [1,2,5,10,20]
-        cvResultTest,cvResultTrain=timed_cv(x,.1,10,kList,dic,2)
-        cv_plotter(kList,cvResultTest,cvResultTrain)
+        kList = [1, 2, 5, 10, 20]
+        cvResultTest, cvResultTrain = timed_cv(x, 0.1, 10, kList, dic, 2)
+        cv_plotter(kList, cvResultTest, cvResultTrain)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()
